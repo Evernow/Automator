@@ -14,5 +14,5 @@ jobs:
         with:
           python-version: 3.9
       - name: Update links
-        run: python "versions\updateLinks.py"
+        run: python "versions/updateLinks.py"
 
