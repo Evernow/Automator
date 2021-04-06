@@ -24,6 +24,7 @@ jobs:
           chmod +x geckodriver
           sudo mv geckodriver /usr/local/bin/
       - name: Run python script to update links
+        run: python "versions/updateLinks.py"
       - name: Commit changed files
         run: |
           git config --local user.name CommandMC
