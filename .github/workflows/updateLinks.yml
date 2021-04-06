@@ -28,7 +28,8 @@ jobs:
       - name: Commit changed files
         run: |
           git config --local user.name CommandMC
-          git add versions/*
+          git config --local user.email admin@commandmc.de
+          git add versions/*.txt
           git commit -m "Auto-updating links"
       - name: Push changed files
         uses: ad-m/github-push-action@master
