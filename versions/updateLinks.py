@@ -1,5 +1,6 @@
 from sys import path
 from os import chdir
+from datetime import datetime
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
@@ -50,6 +51,8 @@ def nvidiaGPU(driver: webdriver.Firefox):
             f.write(version)
             f.write("\n")
             f.write(link)
+            f.write("\n")
+            f.write(datetime.now().strftime('%d/%m/%Y %H:%M'))
 
 
 if __name__ == "__main__":
