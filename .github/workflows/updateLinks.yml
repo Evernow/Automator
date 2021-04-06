@@ -10,9 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Update links
+      - name: Install selenium
+        run: python -m pip install selenium 
+      - name: Install Firefox & geckodriver
+        run: |
+          sudo apt-get install firefox
+          wget https://github.com/mozilla/geckodriver/releases/download/v0.29.0/geckodriver-v0.29.0-linux64.tar.gz
+          tar -xvzf geckodriver*
+          chmod +x geckodriver
+          sudo mv geckodriver /usr/local/bin/
+      - name: Run python script to update links
         run: python "versions/updateLinks.py"
 
