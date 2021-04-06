@@ -24,10 +24,12 @@ jobs:
           chmod +x geckodriver
           sudo mv geckodriver /usr/local/bin/
       - name: Run python script to update links
-        run: python "versions/updateLinks.py"
-      - name: Stage changed files
-        run: git add .
       - name: Commit changed files
-        run: git commit -m "Auto-updating links"
+        run: |
+          git config --local user.name CommandMC
+          git add versions/*
+          git commit -m "Auto-updating links"
       - name: Push changed files
-        run: git push origin HEAD:main
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
