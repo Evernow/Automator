@@ -1,0 +1,31 @@
+1617669214331	geckodriver	INFO	Listening on 127.0.0.1:48457
+1617669215337	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-headless" "-foreground" "-no-remote" "-profile" "/tmp/rust_mozprofileozvnUg"
+*** You are running in headless mode.
+[GFX1-]: glxtest: libEGL missing
+[GFX1-]: glxtest: Unable to open a connection to the X server
+[GFX1-]: glxtest: libEGL missing
+
+(/usr/lib/firefox/firefox:2014): GLib-GObject-CRITICAL **: 00:33:36.647: g_object_set: assertion 'G_IS_OBJECT (object)' failed
+
+(/usr/lib/firefox/firefox:2034): GLib-GObject-CRITICAL **: 00:33:36.771: g_object_set: assertion 'G_IS_OBJECT (object)' failed
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new Error("", "(unknown module)"))
+1617669217858	Marionette	INFO	Listening on port 37591
+
+(/usr/lib/firefox/firefox:2092): GLib-GObject-CRITICAL **: 00:33:37.900: g_object_set: assertion 'G_IS_OBJECT (object)' failed
+1617669217968	Marionette	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://assets.adobedtm.com/b92787824f2e0e9b68dc2e993f9bd995339fe417/mbox-contents-8607bf005193af02d5af3a1af0f3297ceffcdbfe.js, line 16: WebGL warning: <Create>: Can't use WebGL in headless mode (https://bugzil.la/1375585).
+JavaScript warning: https://assets.adobedtm.com/b92787824f2e0e9b68dc2e993f9bd995339fe417/mbox-contents-8607bf005193af02d5af3a1af0f3297ceffcdbfe.js, line 16: Failed to create WebGL context: WebGL creation failed: 
+* Can't use WebGL in headless mode (https://bugzil.la/1375585).
+JavaScript warning: https://assets.adobedtm.com/b92787824f2e0e9b68dc2e993f9bd995339fe417/mbox-contents-8607bf005193af02d5af3a1af0f3297ceffcdbfe.js, line 16: WebGL warning: <Create>: Can't use WebGL in headless mode (https://bugzil.la/1375585).
+JavaScript warning: https://assets.adobedtm.com/b92787824f2e0e9b68dc2e993f9bd995339fe417/mbox-contents-8607bf005193af02d5af3a1af0f3297ceffcdbfe.js, line 16: Failed to create WebGL context: WebGL creation failed: 
+* Can't use WebGL in headless mode (https://bugzil.la/1375585).
+JavaScript warning: https://assets.adobedtm.com/b92787824f2e0e9b68dc2e993f9bd995339fe417/mbox-contents-8607bf005193af02d5af3a1af0f3297ceffcdbfe.js, line 16: WebGL warning: <Create>: Can't use WebGL in headless mode (https://bugzil.la/1375585).
+JavaScript warning: https://assets.adobedtm.com/b92787824f2e0e9b68dc2e993f9bd995339fe417/mbox-contents-8607bf005193af02d5af3a1af0f3297ceffcdbfe.js, line 16: Failed to create WebGL context: WebGL creation failed: 
+* Can't use WebGL in headless mode (https://bugzil.la/1375585).
+JavaScript warning: https://assets.adobedtm.com/b92787824f2e0e9b68dc2e993f9bd995339fe417/mbox-contents-8607bf005193af02d5af3a1af0f3297ceffcdbfe.js, line 16: WebGL warning: <Create>: Can't use WebGL in headless mode (https://bugzil.la/1375585).
+JavaScript warning: https://assets.adobedtm.com/b92787824f2e0e9b68dc2e993f9bd995339fe417/mbox-contents-8607bf005193af02d5af3a1af0f3297ceffcdbfe.js, line 16: Failed to create WebGL context: WebGL creation failed: 
+* Can't use WebGL in headless mode (https://bugzil.la/1375585).
+1617669223176	Marionette	INFO	Stopped listening on port 37591
+
+###!!! [Parent][RunMessage] Error: Channel closing: too late to send/recv, messages will be lost
+
