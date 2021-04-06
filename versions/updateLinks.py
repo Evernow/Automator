@@ -95,9 +95,11 @@ if __name__ == "__main__":
     # Overwrite the User Agent to make sites think we're actually on Windows
     # Some sites (looking at you MS) will automatically redirect to different download links when detecting that you're on Linux
     profile = webdriver.FirefoxProfile()
-    profile.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; WOW64) ")
-    driver = webdriver.Firefox(options=options)
+    profile.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.9 Safari/537.36")
+    driver = webdriver.Firefox(firefox_profile=profile, options=options)
     
     nvidiaGPU(driver)
+    amdGPU(driver)
+    win10(driver)
     
     driver.close()
