@@ -1,6 +1,7 @@
 from sys import path
 from os import chdir
 from datetime import datetime
+from requests import head
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
@@ -54,11 +55,47 @@ def nvidiaGPU(driver: webdriver.Firefox):
             f.write("\n")
             f.write(datetime.now().strftime('%d/%m/%Y %H:%M'))
 
+def amdGPU(driver: webdriver.Firefox):
+    driver.get('https://www.amd.com/en/support')
+    downloadButton = driver.find_element_by_link_text('DOWNLOAD NOW')
+    # TODO: Also get latest version. How does AMD even number driver versions?
+    link = downloadButton.get_attribute('href')
+    with open('amdGPU.txt', 'w') as f:
+        f.write('\n')
+        f.write(link)
+        f.write('\n')
+        f.write(datetime.now().strftime('%d/%m/%Y %H:%M'))
+
+def win10(driver: webdriver.Firefox):
+    driver.get('https://winreleaseinfoprod.blob.core.windows.net/winreleaseinfoprod/en-US.html')
+    # Find the latest version based on the "Microsoft recommends" text
+    recommededByMSText = driver.find_element_by_id('suggested-build-flyout')
+    # Get the parent of the table data element (table row)
+    parent = recommededByMSText.find_element_by_xpath('..')
+    # Get the first table data element, which contains the version text
+    version = parent.find_element_by_xpath('*').text
+    
+    driver.get('https://www.microsoft.com/en-us/software-download/windows10')
+    element = driver.find_element_by_id('windows10-upgrade-now')
+    url = element.get_attribute('href')
+    # To get the download link, we sadly have to use Requests as Selenium / the webdriver API does not contain the option to send HEAD requests
+    link = head(url, allow_redirects=True).url
+    with open('win10.txt', 'w') as f:
+        f.write(version)
+        f.write('\n')
+        f.write(link)
+        f.write('\n')
+        f.write(datetime.now().strftime('%d/%m/%Y %H:%M'))
+    
 
 if __name__ == "__main__":
     chdir(path[0])
     options = Options()
     options.headless = True
+    # Overwrite the User Agent to make sites think we're actually on Windows
+    # Some sites (looking at you MS) will automatically redirect to different download links when detecting that you're on Linux
+    profile = webdriver.FirefoxProfile()
+    profile.set_preference("general.useragent.override", "Mozilla/5.0 (Windows NT 10.0; WOW64) ")
     driver = webdriver.Firefox(options=options)
     
     nvidiaGPU(driver)
