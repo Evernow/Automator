@@ -4,7 +4,7 @@ from time import sleep
 from datetime import datetime
 from requests import head
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotFoundException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.common.by import By
@@ -85,7 +85,7 @@ def amdGPU(driver: webdriver.Firefox):
     # For some reason the Cookie button still isn't clicked here sometimes. Try to click it again just in case
     try:
         driver.find_element_by_id('onetrust-accept-btn-handler').click()
-    except ElementNotFoundException:
+    except NoSuchElementException:
         pass
     
     # Go through the product info selects, wait for each to become visible and select the 2nd item
