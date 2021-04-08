@@ -4,7 +4,7 @@ from time import sleep
 from datetime import datetime
 from requests import head
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotFoundException
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.common.by import By
@@ -56,7 +56,7 @@ def amdGPU(driver: webdriver.Firefox):
     print('Getting AMD GPU driver info')
     driver.get('https://www.amd.com/en/support')
     # Wait for the "We use cookies" text to fade in
-    sleep(5)
+    sleep(2)
     # Try to click the button for 10 seconds
     try:
         WebDriverWait(driver, 10).until(
@@ -81,6 +81,12 @@ def amdGPU(driver: webdriver.Firefox):
         pass
     else:
         sleep(1.5)
+    
+    # For some reason the Cookie button still isn't clicked here sometimes. Try to click it again just in case
+    try:
+        driver.find_element_by_id('onetrust-accept-btn-handler').click()
+    except ElementNotFoundException:
+        pass
     
     # Go through the product info selects, wait for each to become visible and select the 2nd item
     # This way we always get the newest card with, in turn, the newest drivers
