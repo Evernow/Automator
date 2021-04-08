@@ -81,12 +81,9 @@ def amdGPU(driver: webdriver.Firefox):
         pass
     else:
         sleep(1.5)
-    
-    # For some reason the Cookie button still isn't clicked here sometimes. Try to click it again just in case
-    try:
-        driver.find_element_by_id('onetrust-accept-btn-handler').click()
-    except NoSuchElementException:
-        pass
+        
+    # Take a screenshot of the site to see what's wrong with GH Actions that I can't reproduce
+    driver.save_screenshot('sc.txt')
     
     # Go through the product info selects, wait for each to become visible and select the 2nd item
     # This way we always get the newest card with, in turn, the newest drivers
