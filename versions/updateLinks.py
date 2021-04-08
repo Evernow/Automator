@@ -65,6 +65,9 @@ def amdGPU(driver: webdriver.Firefox):
     except TimeoutException as e:
         # If that button doesn't exist, continue along (probably only displays in EU)
         print('Unable to click Cookie Accept button!')
+        print('Current url is ' + driver.current_url)
+        for button in driver.find_elements_by_css_selector('button'):
+            print(button.text)
         print(e)
         pass
     else:
@@ -83,9 +86,6 @@ def amdGPU(driver: webdriver.Firefox):
         pass
     else:
         sleep(1.5)
-        
-    # Take a screenshot of the site to see what's wrong with GH Actions that I can't reproduce
-    driver.save_screenshot('sc.txt')
     
     # Go through the product info selects, wait for each to become visible and select the 2nd item
     # This way we always get the newest card with, in turn, the newest drivers
