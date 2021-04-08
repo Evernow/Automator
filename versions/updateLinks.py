@@ -205,7 +205,7 @@ if __name__ == "__main__":
     print('Script started')
     chdir(path[0])
     options = Options()
-    # options.headless = True
+    options.headless = True
     driver = webdriver.Firefox(options=options)
     print('WebDriver constructed. Getting info now...')
     
