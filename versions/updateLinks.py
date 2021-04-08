@@ -65,8 +65,22 @@ def amdGPU(driver: webdriver.Firefox):
     except TimeoutException:
         # If that button doesn't exist, continue along (probably only displays in EU)
         pass
-    # Wait for the text to fade out again
-    sleep(1.5)
+    else:
+        # Wait for the text to fade out again
+        sleep(1.5)
+    
+    
+    # Do the same thing for the "Do you want to take part in a short survey" box that randomly appears
+    # Yes for some reason that exists
+    sleep(1)
+    try:
+        WebDriverWait(driver, 1).until(
+            EC.element_to_be_clickable((By.ID, 'cboxClose'))
+        ).click()
+    except TimeoutException:
+        pass
+    else:
+        sleep(1.5)
     
     # Go through the product info selects, wait for each to become visible and select the 2nd item
     # This way we always get the newest card with, in turn, the newest drivers
@@ -97,11 +111,17 @@ def amdGPU(driver: webdriver.Firefox):
     link = downloadButton.get_attribute('href')
     version = link.split('/')[-1].split('-')[-4]
     
-    print('Got AMD GPU driver info! Version: ' + version + ', Link: ' + link)
+    # Since AMD is a great company and tries to block 3rd party sites from downloading their drivers,
+    # we have to store the current URL and use that as a "referer" to download the driver
+    referer = driver.current_url
+    
+    print('Got AMD GPU driver info! Version: ' + version + ', Link: ' + link + ', Referer: ' + referer)
     with open('amdGPU.txt', 'w') as f:
         f.write(version)
         f.write('\n')
         f.write(link)
+        f.write('\n')
+        f.write(referer)
         f.write('\n')
         f.write(datetime.now().strftime('%d/%m/%Y %H:%M'))
 
