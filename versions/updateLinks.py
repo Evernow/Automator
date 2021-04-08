@@ -62,8 +62,10 @@ def amdGPU(driver: webdriver.Firefox):
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.ID, 'onetrust-accept-btn-handler'))
         ).click()
-    except TimeoutException:
+    except TimeoutException as e:
         # If that button doesn't exist, continue along (probably only displays in EU)
+        print('Unable to click Cookie Accept button!')
+        print(e)
         pass
     else:
         # Wait for the text to fade out again
