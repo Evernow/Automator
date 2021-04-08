@@ -1,9 +1,10 @@
 from sys import path
 from os import chdir
+from time import sleep
 from datetime import datetime
 from requests import head
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.common.by import By
@@ -54,10 +55,48 @@ def nvidiaGPU(driver: webdriver.Firefox):
 def amdGPU(driver: webdriver.Firefox):
     print('Getting AMD GPU driver info')
     driver.get('https://www.amd.com/en/support')
-    downloadButton = driver.find_element_by_link_text('DOWNLOAD NOW')
-    # TODO: Also get latest version. How does AMD even number driver versions?
-    version = ''
+    # Wait for the "We use cookies" text to fade in
+    sleep(2)
+    # Try to click the button for 10 seconds
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, 'onetrust-accept-btn-handler'))
+        ).click()
+    except TimeoutException:
+        # If that button doesn't exist, continue along (probably only displays in EU)
+        pass
+    # Wait for the text to fade out again
+    sleep(1.5)
+    
+    # Go through the product info selects, wait for each to become visible and select the 2nd item
+    # This way we always get the newest card with, in turn, the newest drivers
+    selects = {
+        'pType': Select(driver.find_element_by_id('Producttype')),
+        'pFamily': Select(driver.find_element_by_id('Productfamily'))
+    }
+    selects['pType'].select_by_index(1)
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, 'Productfamily'))
+    )
+    selects['pFamily'].select_by_index(1)
+    selects['pLine'] = Select(WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, 'Productline'))
+    ))
+    selects['pLine'].select_by_index(1)
+    selects['pModel'] = Select(WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, 'Productmodel'))
+    ))
+    selects['pModel'].select_by_index(1)
+    # Once we selected everything, submit the selections
+    driver.find_element_by_id('edit-submit').click()
+    
+    # Search for the first element with the "btn-transparent-black" class, which is going to be the W10 download button
+    downloadButton = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, 'btn-transparent-black'))
+    )
     link = downloadButton.get_attribute('href')
+    version = link.split('/')[-1].split('-')[-4]
+    
     print('Got AMD GPU driver info! Version: ' + version + ', Link: ' + link)
     with open('amdGPU.txt', 'w') as f:
         f.write(version)
@@ -146,7 +185,7 @@ if __name__ == "__main__":
     print('Script started')
     chdir(path[0])
     options = Options()
-    options.headless = True
+    # options.headless = True
     driver = webdriver.Firefox(options=options)
     print('WebDriver constructed. Getting info now...')
     
