@@ -3,14 +3,18 @@ title 24HS Automator
 set version=1.0.0
 setlocal EnableDelayedExpansion
 
-REM Some stuff here might need changing every once in a while (sorted from most to least likely to change)
-set latestWindowsVersion=20H2
-set updateAssistantURL=https://download.microsoft.com/download/2/b/b/2bba292a-21c3-42a6-8123-98265faff0b6/Windows10Upgrade9252.exe
+set dataStorage=%TEMP%\24HS-Automator
+if not exist %dataStorage%\nul mkdir %dataStorage%
+
+REM Some stuff here might need changing every once in a while
+set win10versionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/win10.txt
+set nvidiaVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/nvidiaGPU.txt
+set amdVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/amdGPU.txt
+set file2clipURL=https://github.com/CommandMC/24HS-Automator/raw/main/tools/file2clip.exe
 set manjaroURL=https://osdn.net/dl/manjaro/manjaro-kde-20.2.1-minimal-210103-linux59.iso
 set legacyBIOSURL=https://www.reddit.com/r/24hoursupport/wiki/enteringbios#wiki_cannot_boot_into_system_or_legacy_.28non_uefi.29_board
 set hirensURL=https://www.hirensbootcd.org/files/HBCD_PE_x64.iso
 set memtestURL=https://www.memtest86.com/downloads/memtest86-usb.zip
-set file2clipURL=https://github.com/rostok/file2clip/raw/master/file2clip.exe
 
 REM Go into the script's location (change drive letter, cd into directory)
 REM This is only necessary because we're (usually) running the script as administrator
@@ -20,7 +24,7 @@ cd %~dp0
 REM Check if the script was ran with administrative permissions. If not, run it with them
 call :checkPermissions
 
-REM Check if we're currently running in safe mode (to either display "Enter"- or "Exit safe boot")
+REM Check if we're currently running in safe mode (to either display "Enter"- or "Exit safe mode")
 call :checkSafeMode
 
 :menu
@@ -73,9 +77,15 @@ exit /b 0
 
 
 :systemUpToDate
-REM Gets the display name out of the registry
->nul for /F "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion"') do set currentVersion=%%a
-if %ERRORLEVEL% NEQ 0 set currentVersion=1903
+curl %win10versionInfo% --silent --location --output %dataStorage%\win10.txt
+call :readLineFromFile %dataStorage%\win10.txt 1 latestWindowsVersion
+REM Tries to get the display name out of the registry
+for /f "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion"') do set currentVersion=%%a 1>nul 2>nul
+REM This reg key does not exist in Win versions older than 20H2.
+REM Since running a command inside a for loop does not set the errorlevel, we have to run it again to actually know if it exists
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 1>nul 2>nul
+REM As mentioned, if this key does not exist we know we're out of date
+if %ERRORLEVEL% NEQ 0 set currentVersion=2004
 REM Compare that to the set value
 if %currentVersion% EQU %latestWindowsVersion% (
 	echo Major Windows version is up to date^^!
@@ -85,14 +95,55 @@ if %currentVersion% EQU %latestWindowsVersion% (
 	REM Kick off the Update Session Orchestrator to start searching for updates
 	REM All switches for that tool are listed at https://www.urtech.ca/2018/11/usoclient-documentation-switches/
 	usoclient StartInteractiveScan
+	echo.
 	echo Also checking for GPU driver updates...
-	
+	call :getWMICvalue GPUManufacturer path win32_VideoController get AdapterCompatibility
+	call :trimString GPUManufacturer !GPUManufacturer!
+	if "!GPUManufacturer!" EQU "NVIDIA" (
+        curl %nvidiaVersionInfo% --silent --location --output %dataStorage%\nvidiaVersionInfo.txt
+        call :readLineFromFile %dataStorage%\nvidiaVersionInfo.txt 1 latestNVIDIAVersion
+        call :getWMICvalue currentDriverVersion path win32_VideoController get DriverVersion
+        set currentDriverVersion=!currentDriverVersion:~-6,1!!currentDriverVersion:~-4,4!
+        set currentDriverVersion=!currentDriverVersion:~0,3!.!currentDriverVersion:~3!
+        if !currentDriverVersion! EQU !latestNVIDIAVersion! (
+            echo Your NVIDIA GPU drivers are up to date!
+        ) else (
+			echo Your NVIDIA GPU drivers are not up to date. Press any key to download the latest installer...
+			pause >nul
+			call :readLineFromFile %dataStorage%\nvidiaVersionInfo.txt 2 latestNVIDIADriver
+			curl !latestNVIDIADriver! --location --output %dataStorage%\latestNVIDIADriver.exe
+			%dataStorage%\latestNVIDIADriver.exe
+		)
+	) else if "!GPUManufacturer!" EQU "Advanced Micro Devices, Inc." (
+		curl %amdVersionInfo% --silent --location --output %dataStorage%\amdVersionInfo.txt
+		call :readLineFromFile %dataStorage%\amdVersionInfo.txt 1 latestAMDVersion
+        echo You're using an AMD GPU. Automatically checking for updates is currently not supported.
+		echo Please check your driver version manually. The latest version is !latestAMDVersion!
+		echo If your driver version is NOT the same as above, press N
+		echo If they are the same, press Y
+		choice
+		if %ERRORLEVEL% EQU 1 (
+			echo Your AMD GPU drivers are up to date!
+		) else (
+			echo Your AMD GPU drivers are not up to date. Press any key to download the latest installer...
+			pause >nul
+			call :readLineFromFile %dataStorage%\amdVersionInfo.txt 2 latestAMDDriver
+			call :readLineFromFile %dataStorage%\amdVersionInfo.txt 3 AMDreferer
+			curl !latestAMDDriver! --referer !AMDreferer! --location --output %dataStorage%\latestAMDDriver.exe
+			%dataStorage%\latestAMDDriver.exe
+		)
+	) else (
+        echo We do not support checking for GPU driver updates on your model yet.
+        echo Please search for them manually. Your GPU manufacturer is !GPUManufacturer!
+	)
 ) else (
 	echo You're not on the latest version^^! Downloading and launching update assistant...
 	REM --location = follow redirects
-	if not exist %TEMP%\updateAssistant.exe curl %updateAssistantURL% --silent --location --output %TEMP%\updateAssistant.exe
-	%TEMP%\updateAssistant.exe
+	call :readLineFromFile %dataStorage%\win10.txt 3 updateAssistantURL
+	if not exist %dataStorage%\updateAssistant.exe curl !updateAssistantURL! --silent --location --output %dataStorage%\updateAssistant.exe
+	%dataStorage%\updateAssistant.exe
 )
+echo.
 echo Press any key to return to the main menu...
 >nul pause
 exit /b 0
@@ -148,9 +199,9 @@ echo Exporting system info to file...
 start /wait msinfo32 /report %USERPROFILE%\Desktop\DanielIsCool.txt
 REM Download a program to put the file into your clipboard
 REM  --location = follow redirects
-if not exist %TEMP%\file2clip.exe curl %file2clipURL% --silent --location --output %TEMP%\file2clip.exe
+if not exist %dataStorage%\file2clip.exe curl %file2clipURL% --silent --location --output %dataStorage%\file2clip.exe
 REM Put the report file into the clipboard for convenience
-%TEMP%\file2clip.exe %USERPROFILE%\Desktop\DanielIsCool.txt
+%dataStorage%\file2clip.exe %USERPROFILE%\Desktop\DanielIsCool.txt
 echo A report file has been generated and put on your desktop ^& into your clipboard
 pause
 exit /b 0
@@ -168,11 +219,16 @@ if %ERRORLEVEL% EQU 0 (
 	start %legacyBIOSURL%
 	echo Press any key to return to the main menu...
 	>nul pause
-	exit /b 0
 )
+exit /b 0
 
 
+REM
+REM
 REM Internal stuff
+REM
+REM
+
 
 :checkPermissions
 net session 1>nul 2>nul
@@ -188,9 +244,38 @@ for /f "skip=1 delims=" %%a in ('wmic computersystem get BootupState') do for /f
 call :trimString state %state%
 set inSafeMode=1
 if "%state%" EQU "Normal boot" set inSafeMode=0
+exit /b 0
 
 :trimString
 set Params=%*
 setlocal
 for /f "tokens=1*" %%a in ("!Params!") do EndLocal & set %1=%%b
 exit /b
+
+:readLineFromFile file lineNum storageVar
+REM Reads one line out of a file and sets the specified variable to its contents
+set /a skip=%2-1
+REM This is a bit ugly since we have to check for skip=0 (otherwise for will always fail)
+if %skip% EQU 0 (
+    set skip=
+) else (
+    set skip=skip=%skip% 
+)
+for /f "%skip%delims=" %%a in (%1) do if not defined done (
+    set done=1
+    set %3=%%a
+)
+set skip=
+set done=
+exit /b 0
+
+:getWMICvalue storageVar args[]
+REM Runs a WMIC call and stores the resulting value inside storageVar
+REM Capture all parameters inside a variable
+set allParams=%*
+REM Remove the first parameter using string replacement
+set allParams=!allParams:%1=!
+set allParams=%allParams:~1%
+for /f "skip=1 delims=" %%a in ('wmic %allParams%') do for /f "delims=" %%b in ("%%a") do set %1=%%b
+set allParams=
+exit /b 0
