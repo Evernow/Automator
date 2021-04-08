@@ -56,7 +56,7 @@ def amdGPU(driver: webdriver.Firefox):
     print('Getting AMD GPU driver info')
     driver.get('https://www.amd.com/en/support')
     # Wait for the "We use cookies" text to fade in
-    sleep(2)
+    sleep(5)
     # Try to click the button for 10 seconds
     try:
         WebDriverWait(driver, 10).until(
