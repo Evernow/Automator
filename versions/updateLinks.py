@@ -66,8 +66,6 @@ def amdGPU(driver: webdriver.Firefox):
         # If that button doesn't exist, continue along (probably only displays in EU)
         print('Unable to click Cookie Accept button!')
         print('Current url is ' + driver.current_url)
-        for button in driver.find_elements_by_css_selector('button'):
-            print(button.text)
         print(e)
         pass
     else:
@@ -87,6 +85,10 @@ def amdGPU(driver: webdriver.Firefox):
     else:
         sleep(1.5)
     
+    # Take a screenshot to hopefully help me what the heck is going on with that cookie message
+    driver.save_screenshot("screenshot.txt")
+    
+    exit(0)
     # Go through the product info selects, wait for each to become visible and select the 2nd item
     # This way we always get the newest card with, in turn, the newest drivers
     selects = {
