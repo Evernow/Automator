@@ -65,7 +65,7 @@ def amdGPU(driver: webdriver.Firefox):
     except TimeoutException:
         # For SOME REASON the "Accept all cookies" button sometimes just doesn't show up.
         # We'll click the close button then
-        driver.find_element_by_class_name('onetrust-close-btn-handler').click()
+        driver.find_element_by_class_name('onetrust-close-btn-ui').click()
         pass
     else:
         # Wait for the text to fade out again
