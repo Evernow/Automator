@@ -130,7 +130,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 		echo Please check your driver version manually. The latest version is !latestAMDVersion!
 		echo If your driver version is NOT the same as above, press N
 		echo If they are the same, press Y
-		choice
+		choice /c YN
 		if !ERRORLEVEL! EQU 1 (
 			echo Your AMD GPU drivers are up to date!
 		) else (
