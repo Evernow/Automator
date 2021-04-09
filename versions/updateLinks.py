@@ -57,16 +57,15 @@ def amdGPU(driver: webdriver.Firefox):
     driver.get('https://www.amd.com/en/support')
     # Wait for the "We use cookies" text to fade in
     sleep(2)
-    # Try to click the button for 10 seconds
+    # Try to click the button for 2 seconds
     try:
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 2).until(
             EC.element_to_be_clickable((By.ID, 'onetrust-accept-btn-handler'))
         ).click()
-    except TimeoutException as e:
-        # If that button doesn't exist, continue along (probably only displays in EU)
-        print('Unable to click Cookie Accept button!')
-        print('Current url is ' + driver.current_url)
-        print(e)
+    except TimeoutException:
+        # For SOME REASON the "Accept all cookies" button sometimes just doesn't show up.
+        # We'll click the close button then
+        driver.find_element_by_class_name('onetrust-close-btn-handler').click()
         pass
     else:
         # Wait for the text to fade out again
@@ -85,10 +84,6 @@ def amdGPU(driver: webdriver.Firefox):
     else:
         sleep(1.5)
     
-    # Take a screenshot to hopefully help me what the heck is going on with that cookie message
-    driver.save_screenshot("screenshot.txt")
-    
-    exit(0)
     # Go through the product info selects, wait for each to become visible and select the 2nd item
     # This way we always get the newest card with, in turn, the newest drivers
     selects = {
