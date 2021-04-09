@@ -114,7 +114,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 			curl !latestNVIDIADriver! --location --output %dataStorage%\latestNVIDIADriver.exe
 			%dataStorage%\latestNVIDIADriver.exe
 		)
-	) else if "!GPUManufacturer!" EQU "Oracle Corporation" (
+	) else if "!GPUManufacturer!" EQU "Advanced Micro Devices, Inc." (
 		curl %amdVersionInfo% --silent --location --output %dataStorage%\amdVersionInfo.txt
 		call :readLineFromFile %dataStorage%\amdVersionInfo.txt 1 latestAMDVersion
         echo You're using an AMD GPU. Automatically checking for updates is currently not supported.
