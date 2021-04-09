@@ -212,7 +212,8 @@ bcdedit | find "winload.efi"
 if %ERRORLEVEL% EQU 0 (
 	echo Press any key to reboot to BIOS...
 	>nul pause
-	shutdown /r /soft /t 0 /fw
+	REM /soft and /fw are exclusive
+	shutdown /r /t 0 /fw
 ) else (
 	echo Your device does not support booting into BIOS automatically.
 	echo Opening up Wiki article on manually entering BIOS...
