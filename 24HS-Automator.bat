@@ -80,7 +80,7 @@ exit /b 0
 curl %win10versionInfo% --silent --location --output %dataStorage%\win10.txt
 call :readLineFromFile %dataStorage%\win10.txt 1 latestWindowsVersion
 REM Tries to get the display name out of the registry
-for /f "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion"') do set currentVersion=%%a 1>nul 2>nul
+for /f "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 2>nul') do set currentVersion=%%a 1>nul 2>nul
 REM This reg key does not exist in Win versions older than 20H2.
 REM Since running a command inside a for loop does not set the errorlevel, we have to run it again to actually know if it exists
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 1>nul 2>nul
