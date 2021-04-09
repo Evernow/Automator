@@ -114,7 +114,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 			curl !latestNVIDIADriver! --location --output %dataStorage%\latestNVIDIADriver.exe
 			%dataStorage%\latestNVIDIADriver.exe
 		)
-	) else if "!GPUManufacturer!" EQU "Advanced Micro Devices, Inc." (
+	) else if "!GPUManufacturer!" EQU "Oracle Corporation" (
 		curl %amdVersionInfo% --silent --location --output %dataStorage%\amdVersionInfo.txt
 		call :readLineFromFile %dataStorage%\amdVersionInfo.txt 1 latestAMDVersion
         echo You're using an AMD GPU. Automatically checking for updates is currently not supported.
@@ -122,7 +122,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 		echo If your driver version is NOT the same as above, press N
 		echo If they are the same, press Y
 		choice
-		if %ERRORLEVEL% EQU 1 (
+		if !ERRORLEVEL! EQU 1 (
 			echo Your AMD GPU drivers are up to date!
 		) else (
 			echo Your AMD GPU drivers are not up to date. Press any key to download the latest installer...
@@ -208,7 +208,7 @@ exit /b 0
 
 
 :enterBIOS
-bcdedit | find "winload.efi"
+bcdedit | find "winload.efi" 1>nul 2>nul 
 if %ERRORLEVEL% EQU 0 (
 	echo Press any key to reboot to BIOS...
 	>nul pause
