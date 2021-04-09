@@ -100,11 +100,16 @@ if %currentVersion% EQU %latestWindowsVersion% (
 	call :getWMICvalue GPUManufacturer path win32_VideoController get AdapterCompatibility
 	call :trimString GPUManufacturer !GPUManufacturer!
 	if "!GPUManufacturer!" EQU "NVIDIA" (
+		REM Download version info
         curl %nvidiaVersionInfo% --silent --location --output %dataStorage%\nvidiaVersionInfo.txt
+		REM Read the actual version out of the file
         call :readLineFromFile %dataStorage%\nvidiaVersionInfo.txt 1 latestNVIDIAVersion
+		REM Get the current driver version using WMIC
         call :getWMICvalue currentDriverVersion path win32_VideoController get DriverVersion
+		REM Do some string manipulation to format the current version nicely
         set currentDriverVersion=!currentDriverVersion:~-6,1!!currentDriverVersion:~-4,4!
         set currentDriverVersion=!currentDriverVersion:~0,3!.!currentDriverVersion:~3!
+		REM Actually compare the two versions
         if !currentDriverVersion! EQU !latestNVIDIAVersion! (
             echo Your NVIDIA GPU drivers are up to date!
         ) else (
@@ -115,8 +120,12 @@ if %currentVersion% EQU %latestWindowsVersion% (
 			%dataStorage%\latestNVIDIADriver.exe
 		)
 	) else if "!GPUManufacturer!" EQU "Advanced Micro Devices, Inc." (
+		REM Download version info
 		curl %amdVersionInfo% --silent --location --output %dataStorage%\amdVersionInfo.txt
+		REM Read the actual version out of the file
 		call :readLineFromFile %dataStorage%\amdVersionInfo.txt 1 latestAMDVersion
+		REM As far as I know it isn't possible to read out the current AMD driver version using CMD
+		REM This is ugly, but at least it works
         echo You're using an AMD GPU. Automatically checking for updates is currently not supported.
 		echo Please check your driver version manually. The latest version is !latestAMDVersion!
 		echo If your driver version is NOT the same as above, press N
@@ -127,8 +136,11 @@ if %currentVersion% EQU %latestWindowsVersion% (
 		) else (
 			echo Your AMD GPU drivers are not up to date. Press any key to download the latest installer...
 			pause >nul
+			REM Read out the latest driver download link
 			call :readLineFromFile %dataStorage%\amdVersionInfo.txt 2 latestAMDDriver
+			REM AMD downloads require a HTTP referer set to their own site, otherwise they will error out
 			call :readLineFromFile %dataStorage%\amdVersionInfo.txt 3 AMDreferer
+			REM Download the latest driver with the referer set correctly
 			curl !latestAMDDriver! --referer !AMDreferer! --location --output %dataStorage%\latestAMDDriver.exe
 			%dataStorage%\latestAMDDriver.exe
 		)
