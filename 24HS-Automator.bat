@@ -258,10 +258,11 @@ set inSafeMode=1
 if "%state%" EQU "Normal boot" set inSafeMode=0
 exit /b 0
 
-:trimString
+:trimString storageVar string
+REM Removes leading and trailing whitespaces from a string and stores it inside storageVar
 set Params=%*
 setlocal
-for /f "tokens=1*" %%a in ("!Params!") do EndLocal & set %1=%%b
+for /f "tokens=1*" %%a in ("%Params%") do EndLocal & set %1=%%b
 exit /b
 
 :readLineFromFile file lineNum storageVar
