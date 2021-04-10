@@ -97,7 +97,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 	usoclient StartInteractiveScan
 	echo.
 	echo Also checking for GPU driver updates...
-	call :getWMICvalue GPUManufacturer path win32_VideoController get AdapterCompatibility
+	call :getWMICvalue GPUManufacturer 1 path win32_VideoController get AdapterCompatibility
 	call :trimString GPUManufacturer !GPUManufacturer!
 	if "!GPUManufacturer!" EQU "NVIDIA" (
 		REM Download version info
@@ -105,7 +105,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 		REM Read the actual version out of the file
         call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 1 latestNVIDIAVersion
 		REM Get the current driver version using WMIC
-        call :getWMICvalue currentDriverVersion path win32_VideoController get DriverVersion
+        call :getWMICvalue currentDriverVersion 1 path win32_VideoController get DriverVersion
 		REM Do some string manipulation to format the current version nicely
         set currentDriverVersion=!currentDriverVersion:~-6,1!!currentDriverVersion:~-4,4!
         set currentDriverVersion=!currentDriverVersion:~0,3!.!currentDriverVersion:~3!
@@ -253,7 +253,7 @@ if %ERRORLEVEL% NEQ 0 (
 exit /b 0
 
 :checkSafeMode
-call :getWMICvalue state computersystem get BootupState
+call :getWMICvalue 1 state computersystem get BootupState
 set inSafeMode=1
 if "%state%" EQU "Normal boot" set inSafeMode=0
 exit /b 0
@@ -282,12 +282,13 @@ set skip=
 set done=
 exit /b 0
 
-:getWMICvalue storageVar args[]
+:getWMICvalue storageVar valueIndex args[]
 REM Runs a WMIC call and stores the resulting value inside storageVar
-REM Capture all parameters except the first one inside a variable
-for /f "tokens=1*" %%a in ("%*") do set allParams=%%b
+REM ValueIndex decides which result to return (used for example for multiple drives inside :isoFlash)
+REM Capture all parameters except the first and second inside a variable
+for /f "tokens=1,2*" %%a in ("%*") do set allParams=%%c
 REM Launch wmic with those params and store the result inside param 1
-for /f "skip=1 delims=" %%a in ('wmic %allParams%') do for /f "delims=" %%b in ("%%a") do set %1=%%b
+for /f "skip=%2 delims=" %%a in ('wmic %allParams%') do for /f "delims=" %%b in ("%%a") do set %1=%%b
 REM Remove leading & trailing whitespaces from the output
 call :trimString %1 !%1!
 REM Free up allParams since we don't need it anymore
