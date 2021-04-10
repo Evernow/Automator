@@ -284,12 +284,12 @@ exit /b 0
 
 :getWMICvalue storageVar args[]
 REM Runs a WMIC call and stores the resulting value inside storageVar
-REM Capture all parameters inside a variable
-set allParams=%*
-REM Remove the first parameter using string replacement
-set allParams=!allParams:%1=!
-set allParams=%allParams:~1%
+REM Capture all parameters except the first one inside a variable
+for /f "tokens=1*" %%a in ("%*") do set allParams=%%b
+REM Launch wmic with those params and store the result inside param 1
 for /f "skip=1 delims=" %%a in ('wmic %allParams%') do for /f "delims=" %%b in ("%%a") do set %1=%%b
+REM Remove leading & trailing whitespaces from the output
 call :trimString %1 !%1!
+REM Free up allParams since we don't need it anymore
 set allParams=
 exit /b 0
