@@ -78,7 +78,7 @@ exit /b 0
 
 :systemUpToDate
 curl %win10versionInfo% --silent --location --output %dataStorage%\win10.txt
-call :readLineFromFile %dataStorage%\win10.txt 1 latestWindowsVersion
+call :readLineFromFile "%dataStorage%\win10.txt" 1 latestWindowsVersion
 REM Tries to get the display name out of the registry
 for /f "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 2^>nul') do set currentVersion=%%a 1>nul 2>nul
 REM This reg key does not exist in Win versions older than 20H2.
@@ -103,7 +103,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 		REM Download version info
         curl %nvidiaVersionInfo% --silent --location --output %dataStorage%\nvidiaVersionInfo.txt
 		REM Read the actual version out of the file
-        call :readLineFromFile %dataStorage%\nvidiaVersionInfo.txt 1 latestNVIDIAVersion
+        call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 1 latestNVIDIAVersion
 		REM Get the current driver version using WMIC
         call :getWMICvalue currentDriverVersion path win32_VideoController get DriverVersion
 		REM Do some string manipulation to format the current version nicely
@@ -115,7 +115,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
         ) else (
 			echo Your NVIDIA GPU drivers are not up to date. Press any key to download the latest installer...
 			pause >nul
-			call :readLineFromFile %dataStorage%\nvidiaVersionInfo.txt 2 latestNVIDIADriver
+			call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 2 latestNVIDIADriver
 			curl !latestNVIDIADriver! --location --output %dataStorage%\latestNVIDIADriver.exe
 			%dataStorage%\latestNVIDIADriver.exe
 		)
@@ -123,7 +123,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 		REM Download version info
 		curl %amdVersionInfo% --silent --location --output %dataStorage%\amdVersionInfo.txt
 		REM Read the actual version out of the file
-		call :readLineFromFile %dataStorage%\amdVersionInfo.txt 1 latestAMDVersion
+		call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 1 latestAMDVersion
 		REM As far as I know it isn't possible to read out the current AMD driver version using CMD
 		REM This is ugly, but at least it works
         echo You're using an AMD GPU. Automatically checking for updates is currently not supported.
@@ -137,9 +137,9 @@ if %currentVersion% EQU %latestWindowsVersion% (
 			echo Your AMD GPU drivers are not up to date. Press any key to download the latest installer...
 			pause >nul
 			REM Read out the latest driver download link
-			call :readLineFromFile %dataStorage%\amdVersionInfo.txt 2 latestAMDDriver
+			call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 2 latestAMDDriver
 			REM AMD downloads require a HTTP referer set to their own site, otherwise they will error out
-			call :readLineFromFile %dataStorage%\amdVersionInfo.txt 3 AMDreferer
+			call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 3 AMDreferer
 			REM Download the latest driver with the referer set correctly
 			curl !latestAMDDriver! --referer !AMDreferer! --location --output %dataStorage%\latestAMDDriver.exe
 			%dataStorage%\latestAMDDriver.exe
@@ -151,7 +151,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 ) else (
 	echo You're not on the latest version^^! Downloading and launching update assistant...
 	REM --location = follow redirects
-	call :readLineFromFile %dataStorage%\win10.txt 3 updateAssistantURL
+	call :readLineFromFile "%dataStorage%\win10.txt" 3 updateAssistantURL
 	if not exist %dataStorage%\updateAssistant.exe curl !updateAssistantURL! --silent --location --output %dataStorage%\updateAssistant.exe
 	%dataStorage%\updateAssistant.exe
 )
@@ -274,7 +274,7 @@ if %skip% EQU 0 (
 ) else (
     set skip=skip=%skip% 
 )
-for /f "%skip%delims=" %%a in (%1) do if not defined done (
+for /f "%skip%delims=" %%a in (%~1) do if not defined done (
     set done=1
     set %3=%%a
 )
