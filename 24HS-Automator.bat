@@ -253,8 +253,7 @@ if %ERRORLEVEL% NEQ 0 (
 exit /b 0
 
 :checkSafeMode
-for /f "skip=1 delims=" %%a in ('wmic computersystem get BootupState') do for /f "delims=" %%b in ("%%a") do set state=%%b
-call :trimString state %state%
+call :getWMICvalue state computersystem get BootupState
 set inSafeMode=1
 if "%state%" EQU "Normal boot" set inSafeMode=0
 exit /b 0
