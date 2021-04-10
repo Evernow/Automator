@@ -27,6 +27,9 @@ call :checkPermissions
 REM Check if we're currently running in safe mode (to either display "Enter"- or "Exit safe mode")
 call :checkSafeMode
 
+REM Check the scripts requirements
+call :checkRequirements
+
 :menu
 cls
 echo 24HS Automator v%version%
@@ -76,16 +79,21 @@ if %ERRORLEVEL% EQU 1 shutdown /r /soft /t 0
 exit /b 0
 
 
-:systemUpToDate
+:systemUpToDate winVersion
 curl %win10versionInfo% --silent --location --output %dataStorage%\win10.txt
 call :readLineFromFile "%dataStorage%\win10.txt" 1 latestWindowsVersion
-REM Tries to get the display name out of the registry
-for /f "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 2^>nul') do set currentVersion=%%a 1>nul 2>nul
-REM This reg key does not exist in Win versions older than 20H2.
-REM Since running a command inside a for loop does not set the errorlevel, we have to run it again to actually know if it exists
-reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 1>nul 2>nul
-REM As mentioned, if this key does not exist we know we're out of date
-if %ERRORLEVEL% NEQ 0 set currentVersion=2004
+REM If a Windows version wasn't supplied, try to get the current one out of the registry
+if "%1" EQU "" (
+	REM Tries to get the display name out of the registry
+	for /f "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 2^>nul') do set currentVersion=%%a 1>nul 2>nul
+	REM This reg key does not exist in Win versions older than 20H2.
+	REM Since running a command inside a for loop does not set the errorlevel, we have to run it again to actually know if it exists
+	reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 1>nul 2>nul
+	REM As mentioned, if this key does not exist we know we're out of date
+	if !ERRORLEVEL! NEQ 0 set currentVersion=2004
+) else (
+	set currentVersion=%1
+)
 REM Compare that to the set value
 if %currentVersion% EQU %latestWindowsVersion% (
 	echo Major Windows version is up to date^^!
@@ -149,7 +157,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
         echo Please search for them manually. Your GPU manufacturer is !GPUManufacturer!
 	)
 ) else (
-	echo You're not on the latest version^^! Downloading and launching update assistant...
+	echo You're not on the latest Windows version^^! Downloading and launching update assistant...
 	REM --location = follow redirects
 	call :readLineFromFile "%dataStorage%\win10.txt" 3 updateAssistantURL
 	if not exist %dataStorage%\updateAssistant.exe curl !updateAssistantURL! --silent --location --output %dataStorage%\updateAssistant.exe
@@ -253,9 +261,18 @@ if %ERRORLEVEL% NEQ 0 (
 exit /b 0
 
 :checkSafeMode
-call :getWMICvalue 1 state computersystem get BootupState
+call :getWMICvalue state 1 computersystem get BootupState
 set inSafeMode=1
 if "%state%" EQU "Normal boot" set inSafeMode=0
+exit /b 0
+
+:checkRequirements
+1>nul 2>nul where tar
+if %ERRORLEVEL% EQU 1 (
+	echo ERROR: This script requires the CURL and TAR commands, which are included with W10 1803.
+	echo Please update to at least 1803 manually.
+	exit
+)
 exit /b 0
 
 :trimString storageVar string
