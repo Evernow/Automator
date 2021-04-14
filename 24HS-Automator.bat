@@ -14,8 +14,14 @@ REM OS Info
 set win10versionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/win10.txt
 set nvidiaVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/nvidiaGPU.txt
 set amdVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/amdGPU.txt
+set manjaroDownloadLink=https://raw.githubusercontent.com/Evernow/evernowmanjaro/main/LatestISO.txt
+
+REM Tools
 set file2clipURL=https://github.com/CommandMC/24HS-Automator/raw/main/tools/file2clip.exe
-set manjaroURL=https://osdn.net/dl/manjaro/manjaro-kde-20.2.1-minimal-210103-linux59.iso
+set gdownURL=https://github.com/CommandMC/24HS-Automator/raw/main/tools/gdown.exe
+set openFileBoxURL=https://github.com/CommandMC/24HS-Automator/raw/main/tools/OpenFileBox.exe
+
+REM External links
 set legacyBIOSURL=https://www.reddit.com/r/24hoursupport/wiki/enteringbios#wiki_cannot_boot_into_system_or_legacy_.28non_uefi.29_board
 set hirensURL=https://www.hirensbootcd.org/files/HBCD_PE_x64.iso
 set memtestURL=https://www.memtest86.com/downloads/memtest86-usb.zip
