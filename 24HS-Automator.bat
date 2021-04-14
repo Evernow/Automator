@@ -7,7 +7,7 @@ setlocal EnableDelayedExpansion
 REM Setup a place to store all data
 set dataStorage=%TEMP%\24HS-Automator
 REM Make sure that folder exists
-if not exist %dataStorage%\nul mkdir %dataStorage%
+if not exist "%dataStorage%\nul" mkdir "%dataStorage%"
 
 REM Some stuff here might need changing every once in a while
 REM OS Info
@@ -90,7 +90,7 @@ exit /b 0
 
 
 :systemUpToDate winVersion
-curl %win10versionInfo% --silent --location --output %dataStorage%\win10.txt
+curl %win10versionInfo% --silent --location --output "%dataStorage%\win10.txt"
 call :readLineFromFile "%dataStorage%\win10.txt" 1 latestWindowsVersion
 REM If a Windows version wasn't supplied, try to get the current one out of the registry
 if "%1" EQU "" (
@@ -119,7 +119,7 @@ if %currentVersion% EQU %latestWindowsVersion% (
 	call :trimString GPUManufacturer !GPUManufacturer!
 	if "!GPUManufacturer!" EQU "NVIDIA" (
 		REM Download version info
-        curl %nvidiaVersionInfo% --silent --location --output %dataStorage%\nvidiaVersionInfo.txt
+        curl %nvidiaVersionInfo% --silent --location --output "%dataStorage%\nvidiaVersionInfo.txt"
 		REM Read the actual version out of the file
         call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 1 latestNVIDIAVersion
 		REM Get the current driver version using WMIC
@@ -134,12 +134,12 @@ if %currentVersion% EQU %latestWindowsVersion% (
 			echo Your NVIDIA GPU drivers are not up to date. Press any key to download the latest installer...
 			pause >nul
 			call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 2 latestNVIDIADriver
-			curl !latestNVIDIADriver! --location --output %dataStorage%\latestNVIDIADriver.exe
-			%dataStorage%\latestNVIDIADriver.exe
+			curl !latestNVIDIADriver! --location --output "%dataStorage%\latestNVIDIADriver.exe"
+			"%dataStorage%\latestNVIDIADriver.exe"
 		)
 	) else if "!GPUManufacturer!" EQU "Advanced Micro Devices, Inc." (
 		REM Download version info
-		curl %amdVersionInfo% --silent --location --output %dataStorage%\amdVersionInfo.txt
+		curl %amdVersionInfo% --silent --location --output "%dataStorage%\amdVersionInfo.txt"
 		REM Read the actual version out of the file
 		call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 1 latestAMDVersion
 		REM As far as I know it isn't possible to read out the current AMD driver version using CMD
@@ -159,8 +159,8 @@ if %currentVersion% EQU %latestWindowsVersion% (
 			REM AMD downloads require a HTTP referer set to their own site, otherwise they will error out
 			call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 3 AMDreferer
 			REM Download the latest driver with the referer set correctly
-			curl !latestAMDDriver! --referer !AMDreferer! --location --output %dataStorage%\latestAMDDriver.exe
-			%dataStorage%\latestAMDDriver.exe
+			curl !latestAMDDriver! --referer !AMDreferer! --location --output "%dataStorage%\latestAMDDriver.exe"
+			"%dataStorage%\latestAMDDriver.exe"
 		)
 	) else (
         echo We do not support checking for GPU driver updates on your model yet.
@@ -170,8 +170,8 @@ if %currentVersion% EQU %latestWindowsVersion% (
 	echo You're not on the latest Windows version^^! Downloading and launching update assistant...
 	REM --location = follow redirects
 	call :readLineFromFile "%dataStorage%\win10.txt" 3 updateAssistantURL
-	if not exist %dataStorage%\updateAssistant.exe curl !updateAssistantURL! --silent --location --output %dataStorage%\updateAssistant.exe
-	%dataStorage%\updateAssistant.exe
+	if not exist "%dataStorage%\updateAssistant.exe" curl !updateAssistantURL! --silent --location --output "%dataStorage%\updateAssistant.exe"
+	"%dataStorage%\updateAssistant.exe"
 )
 echo.
 echo Press any key to return to the main menu...
@@ -229,9 +229,9 @@ echo Exporting system info to file...
 start /wait msinfo32 /report %USERPROFILE%\Desktop\DanielIsCool.txt
 REM Download a program to put the file into your clipboard
 REM  --location = follow redirects
-if not exist %dataStorage%\file2clip.exe curl %file2clipURL% --silent --location --output %dataStorage%\file2clip.exe
+if not exist "%dataStorage%\file2clip.exe" curl %file2clipURL% --silent --location --output "%dataStorage%\file2clip.exe"
 REM Put the report file into the clipboard for convenience
-%dataStorage%\file2clip.exe %USERPROFILE%\Desktop\DanielIsCool.txt
+"%dataStorage%\file2clip.exe" %USERPROFILE%\Desktop\DanielIsCool.txt
 echo A report file has been generated and put on your desktop ^& into your clipboard
 pause
 exit /b 0
