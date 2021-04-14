@@ -1,12 +1,16 @@
 @echo off
 title 24HS Automator
 set version=1.0.0
+REM Needed to fill in variables inside if statements
 setlocal EnableDelayedExpansion
 
+REM Setup a place to store all data
 set dataStorage=%TEMP%\24HS-Automator
+REM Make sure that folder exists
 if not exist %dataStorage%\nul mkdir %dataStorage%
 
 REM Some stuff here might need changing every once in a while
+REM OS Info
 set win10versionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/win10.txt
 set nvidiaVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/nvidiaGPU.txt
 set amdVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/amdGPU.txt
@@ -17,7 +21,7 @@ set hirensURL=https://www.hirensbootcd.org/files/HBCD_PE_x64.iso
 set memtestURL=https://www.memtest86.com/downloads/memtest86-usb.zip
 
 REM Go into the script's location (change drive letter, cd into directory)
-REM This is only necessary because we're (usually) running the script as administrator
+REM This is only necessary because we're (usually) running the script as administrator (and those start out inside Sys32)
 %~d0
 cd %~dp0
 
