@@ -1,5 +1,5 @@
 20H2
-https://software-download.microsoft.com/pr/Win10_20H2_v2_English_x64.iso?t=c24f2ecf-50cd-48fd-a9a4-8961c1f840d8&e=1619266385&h=4194488d53dcf8ba9dc8913fa240e512
+https://software-download.microsoft.com/pr/Win10_20H2_v2_English_x64.iso?t=8c76990e-5f9a-4e82-860b-17ebf9242d5f&e=1619312793&h=773432f474229f817494fa9494aaf3e2
 https://download.microsoft.com/download/2/b/b/2bba292a-21c3-42a6-8123-98265faff0b6/Windows10Upgrade9252.exe
 https://download.microsoft.com/download/4/c/c/4cc6c15c-75a5-4d1b-a3fe-140a5e09c9ff/MediaCreationTool20H2.exe
-23/04/2021 12:13
+24/04/2021 01:06
