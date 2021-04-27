@@ -1,4 +1,4 @@
 21.4.1
 https://drivers.amd.com/drivers/radeon-software-adrenalin-2020-21.4.1-win10-64bit-apr20.exe
 https://www.amd.com/en/support/graphics/amd-radeon-6000-series/amd-radeon-6900-series/amd-radeon-rx-6900-xt
-26/04/2021 12:13
+27/04/2021 01:05
