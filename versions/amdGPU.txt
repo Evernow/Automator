@@ -1,4 +1,4 @@
-2020
-https://drivers.amd.com/drivers/installer/21.10/whql/radeon-software-adrenalin-2020-21.4.1-minimalsetup-210419_web.exe
-https://www.amd.com/en/support
-06/05/2021 12:05
+21.5.1
+https://drivers.amd.com/drivers/non-whql-radeon-software-adrenalin-2020-21.5.1-win10-64bit-may6.exe
+https://www.amd.com/en/support/graphics/amd-radeon-6000-series/amd-radeon-6900-series/amd-radeon-rx-6900-xt
+07/05/2021 01:00
