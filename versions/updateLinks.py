@@ -224,8 +224,43 @@ def win10(wd: webdriver.Firefox):
         f.write('\n')
         f.write(media_creation_tool_link)
         f.write('\n')
-        f.write(datetime.now().strftime('%d/%m/%Y %H:%M'))
-    
+        f.write(datetime.datetime.now().strftime('%d/%m/%Y %H:%M'))
+
+
+def rufus():
+    logger = logging.getLogger('Rufus')
+    logger.info('Getting info')
+    resp = requests.get('https://api.github.com/repos/pbatard/rufus/releases/latest')
+    version: str = resp.json()['tag_name']
+    assets: list[dict] = resp.json()['assets']
+    # The first asset is always the non-portable executable
+    link: str = assets[0]['browser_download_url']
+    logger.info('Got info! Version: {}, Link: {}'.format(version, link))
+    with open('rufus.txt', 'w') as f:
+        f.write(version)
+        f.write('\n')
+        f.write(link)
+        f.write('\n')
+        f.write(datetime.datetime.now().strftime('%d/%m/%Y %H:%M'))
+
+
+def balena_cli():
+    logger = logging.getLogger('balenaCLI')
+    logger.info('Getting info')
+    resp = requests.get('https://api.github.com/repos/balena-io/balena-cli/releases/latest')
+    version: str = resp.json()['tag_name']
+    assets: list[dict] = resp.json()['assets']
+    # Get the portable Windows x64 version
+    win_portable_asset = next(x for x in assets if 'windows-x64-standalone' in x['name'])
+    link: str = win_portable_asset['browser_download_url']
+    logger.info('Got info! Version: {}, Link: {}'.format(version, link))
+    with open('balena_cli.txt', 'w') as f:
+        f.write(version)
+        f.write('\n')
+        f.write(link)
+        f.write('\n')
+        f.write(datetime.datetime.now().strftime('%d/%m/%Y %H:%M'))
+
 
 if __name__ == "__main__":
     # Setup our Logging config
@@ -247,6 +282,9 @@ if __name__ == "__main__":
     nvidia_gpu(driver)
     amd_gpu(driver)
     win10(driver)
+    # Both Rufus and balena CLI use Github, so we can simplify the version info there
+    rufus()
+    balena_cli()
     
     logging.info('All links fetched & info gotten! We\'re done here!')
     driver.close()
