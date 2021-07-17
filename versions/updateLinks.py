@@ -48,7 +48,22 @@ def nvidia_gpu(wd: webdriver.Firefox):
     url: str = download_button.get_attribute('href').split('&')[0].split('?url=')[1]
     version: str = url.split('/')[2]
     link = 'https://us.download.nvidia.com' + url
-    print('Got Nvidia GPU driver info! Version: ' + version + ', Link: ' + link)
+    # If we have a 'nvidiaOverride.txt' file *and* the version specified in there
+    # is newer than the one we got, use that instead
+    if os.path.isfile('nvidiaOverride.txt'):
+        logger.info('Detected nvidiaOverride.txt')
+        with open('nvidiaOverride.txt') as f:
+            lines = f.read().splitlines()
+            override_version = lines[0]
+            override_link = lines[1]
+        # Check if the version we're overriding is actually newer than the one on the site
+        # In case anyone ever forgets to delete the file after the site gets updated,
+        # we won't stay on the older version forever
+        if packaging.version.parse(override_version) > packaging.version.parse(version):
+            logger.info('OverrideVersion {} is greater than version {}'.format(override_version, version))
+            version = override_version
+            link = override_link
+    logger.info('Got Nvidia GPU driver info! Version: {}, Link: {}'.format(version, link))
     with open('nvidiaGPU.txt', 'w') as f:
         f.write(version)
         f.write("\n")
