@@ -470,12 +470,12 @@ exit /b 0
 
 :sysinfo
 echo Exporting system info to file...
-start /wait msinfo32 /report %USERPROFILE%\Desktop\DanielIsCool.txt
+start /wait msinfo32 /report "%USERPROFILE%\Desktop\DanielIsCool.txt"
 REM Download a program to put the file into your clipboard
 REM  --location = follow redirects
 if not exist "%dataStorage%\file2clip.exe" curl %file2clipURL% --silent --location --output "%dataStorage%\file2clip.exe"
 REM Put the report file into the clipboard for convenience
-"%dataStorage%\file2clip.exe" %USERPROFILE%\Desktop\DanielIsCool.txt
+"%dataStorage%\file2clip.exe" "%USERPROFILE%\Desktop\DanielIsCool.txt"
 echo A report file has been generated and put on your desktop ^& into your clipboard
 pause
 exit /b 0
