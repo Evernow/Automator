@@ -97,13 +97,7 @@ curl %win10versionInfo% --silent --location --output "%dataStorage%\win10.txt"
 call :readLineFromFile "%dataStorage%\win10.txt" 1 latestWindowsVersion
 REM If a Windows version wasn't supplied, try to get the current one out of the registry
 if "%1" EQU "" (
-	REM Tries to get the display name out of the registry
-	for /f "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 2^>nul') do set currentVersion=%%a 1>nul 2>nul
-	REM This reg key does not exist in Win versions older than 20H2.
-	REM Since running a command inside a for loop does not set the errorlevel, we have to run it again to actually know if it exists
-	reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 1>nul 2>nul
-	REM As mentioned, if this key does not exist we know we're out of date
-	if !ERRORLEVEL! NEQ 0 set currentVersion=2004
+	call :getWinVersion currentVersion
 ) else (
 	set currentVersion=%1
 )
@@ -119,66 +113,71 @@ if %currentVersion% EQU %latestWindowsVersion% (
 	echo.
 	echo Also checking for GPU driver updates...
 	call :getWMICvalue GPUManufacturer 1 path win32_VideoController get AdapterCompatibility
-	call :trimString GPUManufacturer !GPUManufacturer!
-	if "!GPUManufacturer!" EQU "NVIDIA" (
-		REM Download version info
-        curl %nvidiaVersionInfo% --silent --location --output "%dataStorage%\nvidiaVersionInfo.txt"
-		REM Read the actual version out of the file
-        call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 1 latestNVIDIAVersion
-		REM Get the current driver version using WMIC
-        call :getWMICvalue currentDriverVersion 1 path win32_VideoController get DriverVersion
-		REM Do some string manipulation to format the current version nicely
-        set currentDriverVersion=!currentDriverVersion:~-6,1!!currentDriverVersion:~-4,4!
-        set currentDriverVersion=!currentDriverVersion:~0,3!.!currentDriverVersion:~3!
-		REM Actually compare the two versions
-        if !currentDriverVersion! EQU !latestNVIDIAVersion! (
-            echo Your NVIDIA GPU drivers are up to date!
-        ) else (
-			echo Your NVIDIA GPU drivers are not up to date. Press any key to download the latest installer...
-			pause >nul
-			call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 2 latestNVIDIADriver
-			curl !latestNVIDIADriver! --location --output "%dataStorage%\latestNVIDIADriver.exe"
-			"%dataStorage%\latestNVIDIADriver.exe"
-		)
-	) else if "!GPUManufacturer!" EQU "Advanced Micro Devices, Inc." (
-		REM Download version info
-		curl %amdVersionInfo% --silent --location --output "%dataStorage%\amdVersionInfo.txt"
-		REM Read the actual version out of the file
-		call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 1 latestAMDVersion
-		REM As far as I know it isn't possible to read out the current AMD driver version using CMD
-		REM This is ugly, but at least it works
-        echo You're using an AMD GPU. Automatically checking for updates is currently not supported.
-		echo Please check your driver version manually. The latest version is !latestAMDVersion!
-		echo If your driver version is NOT the same as above, press N
-		echo If they are the same, press Y
-		choice /c YN
-		if !ERRORLEVEL! EQU 1 (
-			echo Your AMD GPU drivers are up to date!
-		) else (
-			echo Your AMD GPU drivers are not up to date. Press any key to download the latest installer...
-			pause >nul
-			REM Read out the latest driver download link
-			call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 2 latestAMDDriver
-			REM AMD downloads require a HTTP referer set to their own site, otherwise they will error out
-			call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 3 AMDreferer
-			REM Download the latest driver with the referer set correctly
-			curl !latestAMDDriver! --referer !AMDreferer! --location --output "%dataStorage%\latestAMDDriver.exe"
-			"%dataStorage%\latestAMDDriver.exe"
-		)
-	) else (
-        echo We do not support checking for GPU driver updates on your model yet.
-        echo Please search for them manually. Your GPU manufacturer is !GPUManufacturer!
-	)
+	call :checkGPUUpdates !GPUManufacturer!
 ) else (
 	echo You're not on the latest Windows version^^! Downloading and launching update assistant...
-	REM --location = follow redirects
 	call :readLineFromFile "%dataStorage%\win10.txt" 3 updateAssistantURL
+	REM --location = follow redirects
 	if not exist "%dataStorage%\updateAssistant.exe" curl !updateAssistantURL! --silent --location --output "%dataStorage%\updateAssistant.exe"
 	"%dataStorage%\updateAssistant.exe"
 )
 echo.
 echo Press any key to return to the main menu...
 >nul pause
+exit /b 0
+
+
+:checkGPUUpdates manufacturer
+REM Tries to check for GPU driver updates. Currently only supports NVIDIA GPUs
+if "%1" EQU "NVIDIA" (
+	REM Download version info
+	curl %nvidiaVersionInfo% --silent --location --output "%dataStorage%\nvidiaVersionInfo.txt"
+	REM Read the actual version out of the file
+	call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 1 latestNVIDIAVersion
+	REM Get the current driver version using WMIC
+	call :getWMICvalue currentDriverVersion 1 path win32_VideoController get DriverVersion
+	REM Do some string manipulation to format the current version nicely
+	set currentDriverVersion=!currentDriverVersion:~-6,1!!currentDriverVersion:~-4,4!
+	set currentDriverVersion=!currentDriverVersion:~0,3!.!currentDriverVersion:~3!
+	REM Actually compare the two versions
+	if !currentDriverVersion! EQU !latestNVIDIAVersion! (
+		echo Your NVIDIA GPU drivers are up to date!
+	) else (
+		echo Your NVIDIA GPU drivers are not up to date. Press any key to download the latest installer...
+		pause >nul
+		call :readLineFromFile "%dataStorage%\nvidiaVersionInfo.txt" 2 latestNVIDIADriver
+		curl !latestNVIDIADriver! --location --output "%dataStorage%\latestNVIDIADriver.exe"
+		"%dataStorage%\latestNVIDIADriver.exe"
+	)
+) else if "%1" EQU "Advanced Micro Devices, Inc." (
+	REM Download version info
+	curl %amdVersionInfo% --silent --location --output "%dataStorage%\amdVersionInfo.txt"
+	REM Read the actual version out of the file
+	call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 1 latestAMDVersion
+	REM As far as I know it isn't possible to read out the current AMD driver version using CMD
+	REM This is ugly, but at least it works
+	echo You're using an AMD GPU. Automatically checking for updates is currently not supported.
+	echo Please check your driver version manually. The latest version is !latestAMDVersion!
+	echo If your driver version is NOT the same as above, press N
+	echo If they are the same, press Y
+	choice /c YN
+	if !ERRORLEVEL! EQU 1 (
+		echo Your AMD GPU drivers are up to date!
+	) else (
+		echo Your AMD GPU drivers are not up to date. Press any key to download the latest installer...
+		pause >nul
+		REM Read out the latest driver download link
+		call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 2 latestAMDDriver
+		REM AMD downloads require a HTTP referer set to their own site, otherwise they will error out
+		call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 3 AMDreferer
+		REM Download the latest driver with the referer set correctly
+		curl !latestAMDDriver! --referer !AMDreferer! --location --output "%dataStorage%\latestAMDDriver.exe"
+		"%dataStorage%\latestAMDDriver.exe"
+	)
+) else (
+	echo We do not support checking for GPU driver updates on your model yet.
+	echo Please search for them manually. Your GPU manufacturer is !GPUManufacturer!
+)
 exit /b 0
 
 
@@ -191,7 +190,7 @@ echo Which type of safe mode do you want to enter?
 echo (D) Default
 echo (N) With networking
 echo (C) With command prompt
-for /f "skip=3" %%a in ('powershell -Command "Get-LocalUser | Where-Object { $_.Enabled -match \"True\"} | Select-Object PrincipalSource"') do set accType=%%a
+call :getAccountType accType
 if %accType% EQU MicrosoftAccount (
 	echo.
 	echo Warning: Your user account is not a local account.
@@ -323,4 +322,62 @@ REM Remove leading & trailing whitespaces from the output
 call :trimString %1 !%1!
 REM Free up allParams since we don't need it anymore
 set allParams=
+exit /b 0
+
+:getWinVersion storageVar
+REM Tries to get the display name out of the registry
+for /f "tokens=3 skip=2" %%a in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 2^>nul') do set %1=%%a 1>nul 2>nul
+REM This reg key does not exist in Win versions older than 20H2.
+REM Since running a command inside a for loop does not set the errorlevel, we have to run it again to actually know if it exists
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v "DisplayVersion" 1>nul 2>nul
+REM As mentioned, if this key does not exist we know we're out of date
+if !ERRORLEVEL! NEQ 0 set %1=2004
+exit /b 0
+
+:getAccountType storageVar
+for /f "skip=3" %%a in ('powershell -Command "Get-LocalUser | Where-Object { $_.Enabled -match \"True\"} | Select-Object PrincipalSource"') do set %1=%%a
+exit /b 0
+
+:getDiskpartDetail diskNum diskNameVar diskDrivesVar
+REM Runs diskparts, selects the specified disk and runs the "detail disk" function
+REM Puts the disk name into diskNameVar and the drive letters the disk is using into diskDrivesVar (formatted "D, E, F" or "None")
+
+REM Unset specified variables
+set %2=
+set %3=
+echo sel disk %1 > "%dataStorage%\diskpartCommand.txt"
+echo detail disk >> "%dataStorage%\diskpartCommand.txt"
+diskpart /s "%dataStorage%\diskpartCommand.txt" > "%dataStorage%\diskpartDetailDisk.txt"
+call :readLineFromFile "%dataStorage%\diskpartDetailDisk.txt" 9 %2
+REM Read out all partitions with drive letters and collect them in one variable
+for /f "skip=26 usebackq tokens=3" %%a in ("%dataStorage%\diskpartDetailDisk.txt") do (
+	REM Not really an easy way to make sure the thing we select is actually a drive letter
+	REM For now we'll check if the thing we got is one character long
+	set ltr=%%a
+	if "!ltr:~1!" EQU "" set %3=!%3!, !ltr!
+)
+
+REM No drive letters
+if "!%3!" EQU "" (
+	set %3=None
+) else (
+	REM Remove the first ", " from devLtrs
+	set %3=!%3:~2!
+)
+exit /b 0
+
+:getFreeDriveLetter storageVar
+REM Gets a free drive letter and stores it into storageVar
+set allLetters=CDEFGHIJKLMNOPQRSTUVWXYZ
+for /f "skip=1 delims=" %%a in ('wmic logicaldisk get caption') do for /f "delims=" %%b in ("%%a") do (
+	REM Get just the drive letter out of the WMIC call
+	set ltr=%%b
+	set ltr=!ltr:~0,1!
+	REM Remove the letter from allLetters
+	for %%c in (!ltr!) do (
+		set allLetters=!allLetters:%%c=!
+	)
+)
+REM Give back the first free letter in that list
+set %1=%allLetters:~0,1%
 exit /b 0
