@@ -1,10 +1,12 @@
-from sys import path
-from os import chdir
-from time import sleep
-from datetime import datetime
-from requests import head
+import sys
+import os
+import time
+import datetime
+import requests
+import logging
+import packaging.version
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.common.by import By
@@ -50,13 +52,13 @@ def nvidiaGPU(driver: webdriver.Firefox):
         f.write("\n")
         f.write(link)
         f.write("\n")
-        f.write(datetime.now().strftime('%d/%m/%Y %H:%M'))
+        f.write(datetime.datetime.now().strftime('%d/%m/%Y %H:%M'))
 
 def amdGPU(driver: webdriver.Firefox):
     print('Getting AMD GPU driver info')
     driver.get('https://www.amd.com/en/support')
     # Wait for the "We use cookies" text to fade in
-    sleep(2)
+    time.sleep(2)
     # Try to click the button for 2 seconds
     try:
         WebDriverWait(driver, 2).until(
@@ -69,12 +71,11 @@ def amdGPU(driver: webdriver.Firefox):
         pass
     else:
         # Wait for the text to fade out again
-        sleep(1.5)
-    
+        time.sleep(1.5)
     
     # Do the same thing for the "Do you want to take part in a short survey" box that randomly appears
     # Yes for some reason that exists
-    sleep(1)
+    time.sleep(1)
     try:
         WebDriverWait(driver, 1).until(
             EC.element_to_be_clickable((By.ID, 'cboxClose'))
@@ -82,7 +83,7 @@ def amdGPU(driver: webdriver.Firefox):
     except TimeoutException:
         pass
     else:
-        sleep(1.5)
+        time.sleep(1.5)
     
     # Go through the product info selects, wait for each to become visible and select the 2nd item
     # This way we always get the newest card with, in turn, the newest drivers
@@ -125,7 +126,8 @@ def amdGPU(driver: webdriver.Firefox):
         f.write('\n')
         f.write(referer)
         f.write('\n')
-        f.write(datetime.now().strftime('%d/%m/%Y %H:%M'))
+        f.write(datetime.datetime.now().strftime('%d/%m/%Y %H:%M'))
+
 
 def win10(driver: webdriver.Firefox):
     print('Getting Windows 10 info')
@@ -204,9 +206,17 @@ def win10(driver: webdriver.Firefox):
     
 
 if __name__ == "__main__":
-    print('Script started')
-    chdir(path[0])
-    options = Options()
+    # Setup our Logging config
+    logging.basicConfig(
+        level=logging.INFO,
+        format='[%(asctime)s] [%(name)s/%(levelname)s] %(message)s',
+        datefmt='%H:%M:%S'
+    )
+    logging.info('Script started')
+    # Change directory to the script location
+    os.chdir(sys.path[0])
+    # Enable the headless option for our Webdriver
+    options = webdriver.firefox.options.Options()
     options.headless = True
     driver = webdriver.Firefox(options=options)
     print('WebDriver constructed. Getting info now...')
@@ -215,6 +225,6 @@ if __name__ == "__main__":
     amdGPU(driver)
     win10(driver)
     
-    print('All links fetched & info gotten! We\'re done here!')
+    logging.info('All links fetched & info gotten! We\'re done here!')
     driver.close()
     exit(0)
