@@ -53,7 +53,7 @@ echo (3) Flash ISOs (Hirens/Memtest/Linux)
 if %inSafeMode% EQU 0 (
 	echo ^(4^) Enter safe mode
 ) else echo ^(4^) Exit safe mode
-echo (5) Perform clean boot
+echo (5) (TODO) Perform clean boot
 echo (6) Generate system info
 echo (7) Enter BIOS
 choice /c 1234567 /N
