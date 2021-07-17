@@ -86,7 +86,7 @@ echo SFC scan completed, running DISM next
 pause
 dism /Online /Cleanup-Image /RestoreHealth
 echo DISM completed. Reboot now?
-choice
+choice /c YN
 REM /soft = Wait for programs to quit
 if %ERRORLEVEL% EQU 1 shutdown /r /soft /t 0
 exit /b 0
@@ -208,7 +208,7 @@ if %tmpERRORLEVEL% EQU 2 (
 if %tmpERRORLEVEL% EQU 3 bcdedit /set {default} safebootalternateshell 1>nul
 echo Safe mode variables set^^! To exit, re-launch this script and choose "(4) Exit safe mode"
 echo Reboot now?
-choice
+choice /c YN
 if %ERRORLEVEL% EQU 1 shutdown /r /soft /t 0
 exit /b 0
 
@@ -218,7 +218,7 @@ bcdedit /deletevalue safeboot 1>nul
 bcdedit /deletevalue safebootalternateshell 1>nul
 echo Safe mode variables deleted^^! Rebooting will now boot normally
 echo Reboot now?
-choice
+choice /c YN
 if %ERRORLEVEL% EQU 1 shutdown /r /soft /t 0
 exit /b 0
 
