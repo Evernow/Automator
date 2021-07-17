@@ -7,7 +7,7 @@ setlocal EnableDelayedExpansion
 REM Setup a place to store all data
 set dataStorage=%TEMP%\24HS-Automator
 REM Make sure that folder exists
-if not exist "%dataStorage%\nul" mkdir "%dataStorage%"
+if not exist "%dataStorage%\" mkdir "%dataStorage%"
 
 REM Some stuff here might need changing every once in a while
 REM OS Info
