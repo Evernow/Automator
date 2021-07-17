@@ -10,11 +10,14 @@ REM Make sure that folder exists
 if not exist "%dataStorage%\" mkdir "%dataStorage%"
 
 REM Some stuff here might need changing every once in a while
-REM OS Info
+REM Version Info/Download links
 set win10versionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/win10.txt
 set nvidiaVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/nvidiaGPU.txt
 set amdVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/amdGPU.txt
+set rufusVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/rufus.txt
+set balenaCliVersionInfo=https://raw.githubusercontent.com/CommandMC/24HS-Automator/main/versions/balena_cli.txt
 set manjaroDownloadLink=https://raw.githubusercontent.com/Evernow/evernowmanjaro/main/LatestISO.txt
+set manjaroChecksumURL=https://raw.githubusercontent.com/Evernow/evernowmanjaro/main/LatestISOChecksumMD5.txt
 
 REM Tools
 set file2clipURL=https://github.com/CommandMC/24HS-Automator/raw/main/tools/file2clip.exe
