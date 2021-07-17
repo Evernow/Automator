@@ -508,12 +508,11 @@ REM
 
 :checkPermissions
 net session 1>nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-	echo The script was not started using administrative permissions
-	powershell -Command "Start-Process -FilePath 'cmd' -ArgumentList '/K %~dpnx0' -Verb RunAs"
-	exit
-)
-exit /b 0
+if %ERRORLEVEL% EQU 0 exit /b 0
+echo The script was not started using administrative permissions
+set pathToScript=%~dpnx0
+powershell -Command Start-Process -FilePath 'cmd' -ArgumentList '/K \"%pathToScript%\"' -Verb RunAs
+exit
 
 :checkSafeMode
 call :getWMICvalue state 1 computersystem get BootupState
