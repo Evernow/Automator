@@ -482,6 +482,7 @@ exit /b 0
 
 
 :enterBIOS
+REM Check if we're on an EFI system (only EFI systems support rebooting into "BIOS")
 bcdedit | find "winload.efi" 1>nul 2>nul 
 if %ERRORLEVEL% EQU 0 (
 	echo Press any key to reboot to BIOS...
@@ -555,7 +556,7 @@ exit /b 0
 
 :getWMICvalue storageVar valueIndex args[]
 REM Runs a WMIC call and stores the resulting value inside storageVar
-REM ValueIndex decides which result to return (used for example for multiple drives inside :isoFlash)
+REM ValueIndex decides which result to return
 REM Capture all parameters except the first and second inside a variable
 for /f "tokens=1,2*" %%a in ("%*") do set allParams=%%c
 REM Launch wmic with those params and store the result inside param 1
