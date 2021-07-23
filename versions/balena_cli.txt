@@ -1,3 +1,3 @@
-v12.44.26
-https://github.com/balena-io/balena-cli/releases/download/v12.44.26/balena-cli-v12.44.26-windows-x64-standalone.zip
-23/07/2021 01:00
+v12.44.27
+https://github.com/balena-io/balena-cli/releases/download/v12.44.27/balena-cli-v12.44.27-windows-x64-standalone.zip
+23/07/2021 12:07
