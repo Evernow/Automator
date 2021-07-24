@@ -1,4 +1,4 @@
 21.7.1
 https://drivers.amd.com/drivers/non-whql-radeon-software-adrenalin-2020-21.7.1-win10-64bit-july15.exe
 https://www.amd.com/en/support/graphics/amd-radeon-6000-series/amd-radeon-6900-series/amd-radeon-rx-6900-xt
-24/07/2021 00:59
+24/07/2021 12:06
