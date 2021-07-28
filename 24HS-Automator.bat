@@ -66,7 +66,7 @@ if %ERRORLEVEL% EQU 1 (
 	call :isoFlash
 ) else if %ERRORLEVEL% EQU 4 (
 	if %inSafeMode% EQU 0 (
-	call :enterSafeMode
+		call :enterSafeMode
 	) else call :exitSafeMode
 ) else if %ERRORLEVEL% EQU 5 (
 	call :cleanBoot
