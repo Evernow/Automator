@@ -28,6 +28,7 @@ REM External links
 set legacyBIOSURL=https://www.reddit.com/r/24hoursupport/wiki/enteringbios#wiki_cannot_boot_into_system_or_legacy_.28non_uefi.29_board
 set hirensURL=https://www.hirensbootcd.org/files/HBCD_PE_x64.iso
 set memtestURL=https://www.memtest86.com/downloads/memtest86-usb.zip
+set autorunsURL=https://download.sysinternals.com/files/Autoruns.zip
 
 REM Go into the script's location (change drive letter, cd into directory)
 REM This is only necessary because we're (usually) running the script as administrator (and those start out inside Sys32)
@@ -39,6 +40,9 @@ call :checkPermissions
 
 REM Check if we're currently running in safe mode (to either display "Enter"- or "Exit safe mode")
 call :checkSafeMode
+
+REM Check if a clean boot was done before
+call :readLineFromFile "%dataStorage%\didDoCleanBoot.txt" 1 cleanBootPrev
 
 REM Check the scripts requirements
 call :checkRequirements
@@ -53,7 +57,9 @@ echo (3) Flash ISOs (Hirens/Memtest/Linux)
 if %inSafeMode% EQU 0 (
 	echo ^(4^) Enter safe mode
 ) else echo ^(4^) Exit safe mode
-echo (5) (TODO) Perform clean boot
+if "%cleanBootPrev%" EQU "1" (
+	echo ^(5^) Reverse clean boot actions
+) else echo (5) Perform clean boot
 echo (6) Generate system info
 echo (7) Enter BIOS
 choice /c 1234567 /N
@@ -69,7 +75,9 @@ if %ERRORLEVEL% EQU 1 (
 		call :enterSafeMode
 	) else call :exitSafeMode
 ) else if %ERRORLEVEL% EQU 5 (
-	call :cleanBoot
+	if "%cleanBootPrev%" EQU "1" (
+		call :reverseCleanBoot
+	) else call :cleanBoot
 ) else if %ERRORLEVEL% EQU 6 (
 	call :sysinfo
 ) else if %ERRORLEVEL% EQU 7 (
@@ -464,7 +472,100 @@ if %ERRORLEVEL% EQU 1 shutdown /r /soft /t 0
 exit /b 0
 
 
-:cleanBoot
+:cleanBoot DoReversal
+REM Get the number of all services
+call :getWMIClen numOfServ service get PathName
+echo We have %numOfServ% Services to check, this could take a moment...
+set disabledServNum=0
+for /l %%a in (1, 1, %numOfServ%) do (
+	call :getWMICvalue pathName %%a service get PathName
+	set firstCharOfPathName=!pathName:~0,1!
+	REM If the PathName has quotes, we have to do some special processing to get the actual filename out of it
+	if !firstCharOfPathName! EQU ^" (
+		for /f delims^=^" %%c in ("!pathName!") do set serviceFile=%%c
+	) else (
+		for /f %%c in ("!pathName!") do set serviceFile=%%c
+	)
+	REM If we have no service file, we can't check the Manufacturer, so we just skip those
+	REM After all, how would a service get started that has no "executable"?
+	if "!serviceFile!" NEQ "" (
+		REM WMIC requires \s to be escaped, so we'll add that here
+		set serviceFile=!serviceFile:^\=^\^\!
+		
+		REM Get the Manufacturer of that service file
+		REM For *reasons*, we can't use our own getWMICvalue function here
+		REM since it always errors out with "invalid alias name". No idea why, this is ugly, but it works
+		
+		REM call :getWMICvalue serviceManufacturer 1 DataFile where Name^='!serviceFile!' get Manufacturer
+		for /f "skip=1 usebackq delims=" %%b in (`wmic DataFile where Name^="!serviceFile!" get Manufacturer`) do (
+			for /f "delims=" %%c in ("%%b") do (
+				call :trimString serviceManufacturer %%c
+			)
+		)
+		
+		if "!serviceManufacturer!" NEQ "Microsoft Corporation" if "!serviceManufacturer!" NEQ "" (
+			call :getWMICvalue serviceDisplayName %%a service get Caption
+			call :getWMICvalue serviceName %%a service get Name
+			REM If we're in reversal mode, display and do different things
+			if "%1" EQU "1" (
+				echo Enabling service "!serviceDisplayName!" by !serviceManufacturer!.
+				wmic Service where Name='!serviceName!' call ChangeStartmode Auto
+			) else (
+				REM Storing a list of disabled services will speed up a reversal process drastically, so we'll do that
+				call :getWMICvalue serviceStartMode %%a service get StartMode
+				>> "%dataStorage%\cleanBootList.txt" echo !serviceName!,!serviceStartMode!
+				echo Disabling service "!serviceDisplayName!" by !serviceManufacturer!.
+				set /a disabledServNum=!disabledServNum!+1
+				>nul wmic Service where Name='!serviceName!' call ChangeStartmode Disabled
+			)
+		)
+	)
+)
+REM If we're in reversal mode, skip everything else
+if "%1" EQU "1" exit /b 0
+>"%dataStorage%\didDoCleanBoot.txt" echo 1
+echo Disabled %disabledServNum% services^^^!
+echo.
+echo Do you also want to run Autoruns to search for more startup programs?
+choice /c YN
+if %ERRORLEVEL% EQU 1 (
+	echo Downloading Autoruns...
+	curl %autorunsURL% --location --output "%dataStorage%\Autoruns.zip"
+	if not exist "%dataStorage%\Autoruns\" mkdir "%dataStorage%\Autoruns\"
+	tar -xf "%dataStorage%\Autoruns.zip" -C "%dataStorage%\Autoruns"
+	start /wait "%dataStorage%\Autoruns\Autoruns.exe"
+)
+echo Press any key to reboot...
+pause >nul
+shutdown /r /t 0 /soft
+exit /b 0
+
+
+:reverseCleanBoot
+echo Checking if we have a list of disabled services...
+if exist "%dataStorage%\cleanBootList.txt" (
+	echo Clean Boot list exists^^^! Reversal will be much faster
+	for /f "usebackq tokens=1,2 delims=," %%a in ("%dataStorage%\cleanBootList.txt") do (
+		REM ChangeStartMode expects 'Automatic' instead of 'Auto', correct that here
+		if "%%b" EQU "Auto" (
+			set startupMode=Automatic
+		) else set startupMode=%%b
+		
+		echo Enabling service %%a ^(Startup Type !startupMode!^)
+		>nul wmic Service where Name='%%a' call ChangeStartmode !startupMode!
+	)
+	del "%dataStorage%\cleanBootList.txt"
+) else (
+	echo Clean Boot list does not exist^^^! Please wait a moment for manual reversal...
+	REM Call the regular clean boot function with '1', indicating we're in reversal mode
+	call :cleanBoot 1
+)
+REM Since we're now done with everything, delete the file indicating that we did a clean boot
+del "%dataStorage%\didDoCleanBoot.txt"
+REM And finally, reboot to restart any services that were disabled before
+echo Press any key to reboot...
+pause >nul
+shutdown /r /t 0 /soft
 exit /b 0
 
 
