@@ -538,6 +538,7 @@ exit /b
 
 :readLineFromFile file lineNum storageVar
 REM Reads one line out of a file and sets the specified variable to its contents
+if not exist %1 exit /b 1
 set /a skip=%2-1
 REM This is a bit ugly since we have to check for skip=0 (otherwise for will always fail)
 if %skip% EQU 0 (
