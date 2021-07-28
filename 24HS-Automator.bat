@@ -554,18 +554,45 @@ set skip=
 set done=
 exit /b 0
 
+REM This is the old "get a WMIC value" function. It behaves just like the new one, but doesn't support certain values
+REM (ones with / and ? in them, probably some more) because of the :trimString function it requires
+REM If issues are encountered with the new one, re-enable this one
+:getWMICvalueOLD storageVar valueIndex args[]
+for /f "tokens=1,2*" %%a in ("%*") do set allParams=%%c
+for /f "skip=%2 delims=" %%a in ('wmic %allParams%') do for /f "delims=" %%b in ("%%a") do set %1=%%b
+call :trimString %1 !%1!
+set allParams=
+exit /b 0
+
 :getWMICvalue storageVar valueIndex args[]
 REM Runs a WMIC call and stores the resulting value inside storageVar
 REM ValueIndex decides which result to return
 REM Capture all parameters except the first and second inside a variable
-for /f "tokens=1,2*" %%a in ("%*") do set allParams=%%c
+for /f "tokens=1,2,*" %%a in ("%*") do set allParams=%%c
+set /a actualSkip=%2+1
 REM Launch wmic with those params and store the result inside param 1
-for /f "skip=%2 delims=" %%a in ('wmic %allParams%') do for /f "delims=" %%b in ("%%a") do set %1=%%b
-REM Remove leading & trailing whitespaces from the output
-call :trimString %1 !%1!
-REM Free up allParams since we don't need it anymore
+for /f "usebackq skip=%actualSkip% tokens=2 delims=," %%a in (`wmic %allParams% /format:csv`) do (
+	if not defined done (
+		set done=1
+		for /f "delims=" %%b in ("%%a") do set %1=%%b
+	)
+)
+REM Free up all temporary variables
+set allParams=
+set done=
+set actualSkip=
+exit /b 0
+
+:getWMIClen storageVar args[]
+REM Runs a WMIC call and stores the number of results inside storageVar
+REM Capture all parameters except the first one inside a variable
+for /f "tokens=1,*" %%a in ("%*") do set allParams=%%b
+set %1=0
+REM Count how many results there were, skipping the starting line (Node, ...) and the newline at the start
+for /f "skip=2" %%a in ('wmic %allParams% /format:csv') do for /f %%b in ("%%a") do set /a %1=!%1!+1
 set allParams=
 exit /b 0
+
 
 :getWinVersion storageVar
 REM Tries to get the display name out of the registry
