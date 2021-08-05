@@ -251,7 +251,11 @@ def balena_cli():
     version: str = resp.json()['tag_name']
     assets: list[dict] = resp.json()['assets']
     # Get the portable Windows x64 version
-    win_portable_asset = next(x for x in assets if 'windows-x64-standalone' in x['name'])
+    try:
+        win_portable_asset = next(x for x in assets if 'windows-x64-standalone' in x['name'])
+    except StopIteration:
+        logger.error('Latest balenaCLI release does not ship a Windows Standalone version! Leaving version info alone')
+        return
     link: str = win_portable_asset['browser_download_url']
     logger.info('Got info! Version: {}, Link: {}'.format(version, link))
     with open('balena_cli.txt', 'w') as f:
