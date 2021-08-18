@@ -90,13 +90,17 @@ goto menu
 echo Running SFC and DISM scans...
 sfc /scannow
 echo.
-echo SFC scan completed, running DISM next
-pause
+echo SFC scan completed, running DISM now
 dism /Online /Cleanup-Image /RestoreHealth
-echo DISM completed. Reboot now?
+echo DISM completed. Do you also want to run chkdsk?
 choice /c YN
+if %ERRORLEVEL% EQU 1 (
+	REM Automatically accept the "Check this volume the next time this PC restarts" prompt
+	echo Y>"%dataStorage%\chkdskY.txt"
+	chkdsk C: /r /x < "%dataStorage%\chkdskY.txt"
+)
 REM /soft = Wait for programs to quit
-if %ERRORLEVEL% EQU 1 shutdown /r /soft /t 0
+shutdown /r /soft /t 0
 exit /b 0
 
 
