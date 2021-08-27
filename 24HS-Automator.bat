@@ -1,6 +1,6 @@
 @echo off
 title 24HS Automator
-set version=1.0.0
+set version=1.1.0
 REM Needed to fill in variables inside if statements
 setlocal EnableDelayedExpansion
 
@@ -25,10 +25,11 @@ set gdownURL=https://github.com/CommandMC/24HS-Automator/raw/main/tools/gdown.ex
 set openFileBoxURL=https://github.com/CommandMC/24HS-Automator/raw/main/tools/OpenFileBox.exe
 
 REM External links
-set legacyBIOSURL=https://www.reddit.com/r/24hoursupport/wiki/enteringbios#wiki_cannot_boot_into_system_or_legacy_.28non_uefi.29_board
-set hirensURL=https://www.hirensbootcd.org/files/HBCD_PE_x64.iso
-set memtestURL=https://www.memtest86.com/downloads/memtest86-usb.zip
 set autorunsURL=https://download.sysinternals.com/files/Autoruns.zip
+set dduURL=https://ftp.nluug.nl/pub/games/PC/guru3d/ddu/[Guru3D.com]-DDU.zip
+set hirensURL=https://www.hirensbootcd.org/files/HBCD_PE_x64.iso
+set legacyBIOSURL=https://www.reddit.com/r/24hoursupport/wiki/enteringbios#wiki_cannot_boot_into_system_or_legacy_.28non_uefi.29_board
+set memtestURL=https://www.memtest86.com/downloads/memtest86-usb.zip
 
 REM Go into the script's location (change drive letter, cd into directory)
 REM This is only necessary because we're (usually) running the script as administrator (and those start out inside Sys32)
@@ -165,25 +166,18 @@ if "%1" EQU "NVIDIA" (
 	REM Download version info
 	curl %amdVersionInfo% --silent --location --output "%dataStorage%\amdVersionInfo.txt"
 	REM Read the actual version out of the file
-	call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 1 latestAMDVersion
-	REM As far as I know it isn't possible to read out the current AMD driver version using CMD
-	REM This is ugly, but at least it works
-	echo You're using an AMD GPU. Automatically checking for updates is currently not supported.
-	echo Please check your driver version manually. The latest version is !latestAMDVersion!
-	echo If your driver version is NOT the same as above, press N
-	echo If they are the same, press Y
-	choice /c YN
-	if !ERRORLEVEL! EQU 1 (
+	call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 3 latestAMDVersion
+	call :getWMICvalue currentDriverVersion 1 path win32_VideoController get DriverVersion
+	if !currentDriverVersion! EQU !latestAMDVersion! (
 		echo Your AMD GPU drivers are up to date!
 	) else (
 		echo Your AMD GPU drivers are not up to date. Press any key to download the latest installer...
 		pause >nul
 		REM Read out the latest driver download link
 		call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 2 latestAMDDriver
-		REM AMD downloads require a HTTP referer set to their own site, otherwise they will error out
-		call :readLineFromFile "%dataStorage%\amdVersionInfo.txt" 3 AMDreferer
-		REM Download the latest driver with the referer set correctly
-		curl !latestAMDDriver! --referer !AMDreferer! --location --output "%dataStorage%\latestAMDDriver.exe"
+		REM Update: The AMD site requires a referer, but it just has to contain "www.amd.com"
+		REM somewhere. So we don't need to store it in the file at all
+		curl !latestAMDDriver! --referer www.amd.com --location --output "%dataStorage%\latestAMDDriver.exe"
 		"%dataStorage%\latestAMDDriver.exe"
 	)
 ) else (
