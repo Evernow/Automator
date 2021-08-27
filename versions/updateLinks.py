@@ -132,17 +132,11 @@ def amd_gpu(wd: webdriver.Firefox):
     link = download_button.get_attribute('href')
     version = link.split('/')[-1].split('-')[-4]
     
-    # Since AMD is a great company and tries to block 3rd party sites from downloading their drivers,
-    # we have to store the current URL and use that later as a "referer" to download the driver
-    referer = wd.current_url
-    
-    logger.info('Got info! Version: {}, Link {}, Referrer {}'.format(version, link, referer))
+    logger.info('Got info! Version: {}, Link {}'.format(version, link))
     with open('amdGPU.txt', 'w') as f:
         f.write(version)
         f.write('\n')
         f.write(link)
-        f.write('\n')
-        f.write(referer)
         f.write('\n')
         f.write(datetime.datetime.now().strftime('%d/%m/%Y %H:%M'))
 
