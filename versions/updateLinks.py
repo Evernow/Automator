@@ -132,11 +132,31 @@ def amd_gpu(wd: webdriver.Firefox):
     link = download_button.get_attribute('href')
     version = link.split('/')[-1].split('-')[-4]
     
-    logger.info('Got info! Version: {}, Link {}'.format(version, link))
+    # Open the release notes to get the driver version that's actually used in Windows
+    # Find the "Driver Details" <details> element
+    driver_details = WebDriverWait(wd, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, 'driver-details'))
+    )
+    release_notes_element = driver_details.find_element_by_xpath('//div/p/a')
+    release_notes_link = release_notes_element.get_attribute('href')
+
+    # Actually navigate to the release notes
+    wd.get(release_notes_link)
+
+    # Get the heading that the relevant info is under
+    heading = next(element for element in wd.find_elements_by_xpath('//h2') if element.text == 'Package Contents')
+    package_contents_text = heading.find_element_by_xpath('//following-sibling::p//following-sibling::ul/li').text
+    # Format the text so only the version is included
+    driver_version = package_contents_text.split('(')[1][29:-2]
+
+
+    logger.info('Got info! Version: {}, Link {}, Driver version: {}'.format(version, link, driver_version))
     with open('amdGPU.txt', 'w') as f:
         f.write(version)
         f.write('\n')
         f.write(link)
+        f.write('\n')
+        f.write(driver_version)
         f.write('\n')
         f.write(datetime.datetime.now().strftime('%d/%m/%Y %H:%M'))
 
