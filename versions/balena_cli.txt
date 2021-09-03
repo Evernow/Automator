@@ -1,3 +1,3 @@
 v12.48.4
 https://github.com/balena-io/balena-cli/releases/download/v12.48.4/balena-cli-v12.48.4-windows-x64-standalone.zip
-02/09/2021 12:08
+03/09/2021 00:59
