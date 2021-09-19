@@ -1,3 +1,3 @@
 v12.48.13
 https://github.com/balena-io/balena-cli/releases/download/v12.48.13/balena-cli-v12.48.13-windows-x64-standalone.zip
-18/09/2021 12:08
+19/09/2021 01:02
