@@ -1,4 +1,4 @@
 21.9.2
 https://drivers.amd.com/drivers/non-whql-radeon-software-adrenalin-2020-21.9.2-win10-64bit-sep21.exe
 30.0.13017.5006
-03/10/2021 01:07
+03/10/2021 12:07
