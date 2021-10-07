@@ -1,5 +1,5 @@
 21H1
-https://software-download.microsoft.com/db/Win10_21H1_English_x64.iso?t=35ee6b66-6171-4032-916d-d24a6a4aab10&e=1633608513&h=37a1dab328f115024f2eaef73d4f16fc
+https://software-download.microsoft.com/pr/Win10_21H1_English_x64.iso?t=c7b1f6d7-a90e-4cc0-8daf-c79b99533d6d&e=1633655090&h=e8b3915c42c723f7fe9a7a54fa18085d
 https://download.microsoft.com/download/3/0/1/301147e7-e3d3-467e-a9eb-003a72840887/Windows10Upgrade9252.exe
 https://download.microsoft.com/download/d/5/2/d528a4e0-03f3-452d-a98e-3e479226d166/MediaCreationTool21H1.exe
-06/10/2021 12:08
+07/10/2021 01:04
