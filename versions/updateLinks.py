@@ -130,7 +130,7 @@ def amd_gpu(wd: webdriver.Firefox):
         EC.presence_of_element_located((By.CLASS_NAME, 'btn-transparent-black'))
     )
     link = download_button.get_attribute('href')
-    version = link.split('/')[-1].split('-')[-4]
+    version = link.split('/')[-1].split('-')[-5]
     
     # Open the release notes to get the driver version that's actually used in Windows
     # Find the "Driver Details" <details> element
