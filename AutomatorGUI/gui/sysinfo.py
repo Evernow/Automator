@@ -137,7 +137,7 @@ class SysInfoWindow(QDialog):
         platform_button_laptop = QRadioButton('Laptop')
         platform_button_laptop.clicked.connect(lambda: self.desktop_group.setEnabled(False))
         self.platform_buttons.addButton(platform_button_laptop, 2)
-        if is_laptop() > .5:
+        if is_laptop():
             platform_button_laptop.click()
         else:
             platform_button_desktop.click()
