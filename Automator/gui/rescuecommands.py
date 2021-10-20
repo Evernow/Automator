@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import QDialog, QVBoxLayout, QPushButton, QGroupBox, QHBoxL
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
-from AutomatorGUI.misc.cmd import silent_run_as_admin
+from Automator.misc.cmd import silent_run_as_admin
 
 
 class ProcessWatcher(QObject):

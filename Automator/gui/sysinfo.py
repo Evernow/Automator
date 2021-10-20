@@ -8,7 +8,7 @@ from PyQt6.QtGui import QMouseEvent, QCloseEvent, QGuiApplication
 from PyQt6.QtWidgets import QDialog, QHBoxLayout, QGroupBox, QGridLayout, QLabel, QSpacerItem, QSizePolicy, \
     QButtonGroup, QRadioButton, QVBoxLayout, QWidget, QLineEdit, QPushButton, QMessageBox
 
-from AutomatorGUI.misc.platform_info import is_laptop
+from Automator.misc.platform_info import is_laptop
 
 
 class WrappingLabel(QLabel):

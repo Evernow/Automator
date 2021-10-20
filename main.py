@@ -6,7 +6,7 @@ from logging import basicConfig, INFO
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication
 
-from AutomatorGUI.gui.main import MainWindow
+from Automator.gui.main import MainWindow
 
 
 def main():
