@@ -316,6 +316,8 @@ class SysInfoWindow(QDialog):
             'Your system info was saved onto your desktop and\n'
             'copied to the clipboard (Ctrl + V)'
         ).exec()
+        # Close this window so the user doesn't accidentally click "Finish" twice
+        self.close()
 
 
 def get_button_id(button_group: QButtonGroup, fallback: str = None) -> Union[str, None]:
