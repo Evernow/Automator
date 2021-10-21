@@ -313,8 +313,7 @@ class SysInfoWindow(QDialog):
         QMessageBox(
             QMessageBox.Icon.Information,
             'System info exported!',
-            'Your system info was saved onto your desktop and\n'
-            'copied to the clipboard (Ctrl + V)'
+            'Your system info was saved onto your desktop'
         ).exec()
         # Close this window so the user doesn't accidentally click "Finish" twice
         self.close()
