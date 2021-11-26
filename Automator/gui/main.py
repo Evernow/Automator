@@ -1,3 +1,5 @@
+import os.path
+
 from PyQt6.QtCore import Qt
 from logging import getLogger
 
@@ -12,6 +14,10 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.logger = getLogger('Automator')
         self.logger.info('Starting up...')
+
+        main_path = os.path.join(os.path.expandvars('%ProgramData%'), '24HS-Automator')
+        if not os.path.isdir(main_path):
+            os.mkdir(main_path)
 
         main_widget = QWidget()
         layout = QVBoxLayout()

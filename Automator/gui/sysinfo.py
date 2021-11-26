@@ -1,6 +1,9 @@
 import logging
 import os.path
+import shutil
 from typing import Union
+# noinspection PyUnresolvedReferences
+from win32com.shell import shell, shellcon
 
 import wmi
 from PyQt6.QtCore import pyqtSignal, Qt, QProcess, QMimeData, QUrl
@@ -261,13 +264,13 @@ class SysInfoWindow(QDialog):
         finish_button.setEnabled(False)
         self.msinfo_proc.start(
             'msinfo32',
-            ['/report', os.path.join(os.path.expandvars('%USERPROFILE%'), 'Desktop', 'DanielIsCool.txt')],
+            ['/report', os.path.join(os.path.expandvars('%ProgramData%'), '24HS-Automator', 'Sysinfo.txt')],
         )
 
     def msinfo_finished(self):
         self.logger.info('MsInfo32 finished')
 
-        file_path = os.path.join(os.path.expandvars('%USERPROFILE%'), 'Desktop', 'DanielIsCool.txt')
+        file_path = os.path.join(os.path.expandvars('%ProgramData%'), '24HS-Automator', 'Sysinfo.txt')
 
         # Re-enable widgets
         general_section = self.layout.itemAt(0).widget()
@@ -309,11 +312,25 @@ class SysInfoWindow(QDialog):
         file.setUrls([QUrl.fromLocalFile(file_path)])
         clipboard.setMimeData(file)
 
+        # Try to copy the file to the desktop
+        desktop_folder_path = shell.SHGetKnownFolderPath(shellcon.FOLDERID_Desktop, 0, 0)
+        try:
+            shutil.copyfile(file_path, os.path.join(desktop_folder_path, os.path.basename(file_path)))
+        except PermissionError:
+            self.logger.warning('Could not copy file to Desktop, trying Downloads instead')
+            shutil.copyfile(
+                file_path,
+                os.path.join(os.path.expandvars('%USERPROFILE%'), 'Downloads', os.path.basename(file_path))
+            )
+            file_location = 'in your Downloads folder'
+        else:
+            file_location = 'onto your Desktop'
+
         # Prompt the user that their system info is ready
         QMessageBox(
             QMessageBox.Icon.Information,
             'System info exported!',
-            'Your system info was saved onto your desktop'
+            f'Your system info was saved {file_location}'
         ).exec()
         # Close this window so the user doesn't accidentally click "Finish" twice
         self.close()
