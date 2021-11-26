@@ -7,11 +7,30 @@ import time
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtGui import QPaintEvent, QCloseEvent
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QPushButton, QGroupBox, QHBoxLayout, QTextEdit, QProgressBar, \
-    QMessageBox
+    QMessageBox, QAbstractButton
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
 from Automator.misc.cmd import silent_run_as_admin
+
+
+class RestartDialog(QMessageBox):
+    """
+    Displays a "Restart required" dialog with the options to restart now / later
+    """
+    def __init__(self, text: str = 'A restart is required to complete the scans', title_text: str = 'Restart required'):
+        super(RestartDialog, self).__init__(
+            QMessageBox.Icon.Information,
+            title_text,
+            text
+        )
+        self.addButton('Restart now', QMessageBox.ButtonRole.AcceptRole)
+        self.addButton('Restart later', QMessageBox.ButtonRole.RejectRole)
+        self.buttonClicked.connect(self.on_restart)
+
+    def on_restart(self, button: QAbstractButton):
+        if self.buttonRole(button) == QMessageBox.ButtonRole.AcceptRole:
+            subprocess.Popen(['shutdown', '/r', '/t', '0'])
 
 
 class ProcessWatcher(QObject):
@@ -339,6 +358,8 @@ class RescueCommandsWindow(QDialog):
         self.chkdsk_watcher._finish()
 
     def chkdsk_done(self):
+        self.logger.info('CHKDSK scan done')
+
         # Remove all temporary files created
         temp_path = os.path.expandvars('%TEMP%')
         for filename in ['chkdsk_temp.bat', 'chkdsk_y.txt', 'done.txt']:
@@ -347,13 +368,4 @@ class RescueCommandsWindow(QDialog):
         # Re-enable buttons
         self._for_each_button(enable=True)
 
-        restart_dialog = QMessageBox()
-        restart_dialog.setWindowTitle('Restart required')
-        restart_dialog.setText('To run the CHKDSK scan, you will have to restart your computer')
-        restart_dialog.addButton('Restart now', QMessageBox.ButtonRole.AcceptRole)
-        restart_dialog.addButton('Restart later', QMessageBox.ButtonRole.RejectRole)
-        selection = restart_dialog.exec()
-
-        # If the user selects "Restart now", reboot the PC
-        if selection == 0:
-            subprocess.Popen(['shutdown', '/r', '/t', '0'])
+        RestartDialog('To run the CHKDSK scan, you will have to restart your computer').exec()
