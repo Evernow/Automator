@@ -204,6 +204,8 @@ class RescueCommandsWindow(QDialog):
         if hasattr(self, 'dism_watcher'):
             if not self.dism_watcher.has_finished():
                 self.dism_watcher.cancel()
+        if hasattr(self, 'sfc_watcher') and hasattr(self, 'dism_watcher'):
+            RestartDialog('To finish up the SFC and DISM scans, you\'ll have to restart').exec()
 
     def _for_each_button(self, enable=False, ignore_button=-1, ignore_button_text=None, click_connect=None):
         for i in range(self.button_layout.count()):
