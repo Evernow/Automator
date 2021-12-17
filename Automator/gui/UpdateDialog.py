@@ -3,7 +3,7 @@ import os
 import sys
 
 Started = 0 # To avoid duplicate exits
-class UpdateDialog(object):
+class UpdateDialog():
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(500, 100)
