@@ -1,20 +1,28 @@
+Current_version = '1.1.0'
+
 from PyQt6.QtCore import Qt
+from PyQt6 import QtCore
 from logging import getLogger
 
-from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton
+from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QDialog
 
 from Automator.gui.rescuecommands import RescueCommandsWindow
 from Automator.gui.sysinfo import SysInfoWindow
+from Automator.gui.UpdateDialog import UpdateDialog
 
+import os
+import sys
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.logger = getLogger('Automator')
         self.logger.info('Starting up...')
+        
 
         main_widget = QWidget()
         layout = QVBoxLayout()
+        
 
         title = QLabel('24HS-Automator')
         default_font = title.font()
@@ -48,3 +56,27 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('24HS-Automator')
         self.setMinimumSize(500, 300)
         self.setCentralWidget(main_widget)
+        
+        try:
+            import requests
+            response = requests.get("https://api.github.com/repos/24HourSupport/Automator/releases/latest", timeout=3)
+            Latest_version = response.json()["name"].replace('v', '').strip()
+
+            if (Current_version < Latest_version):
+                UpToDateBox(self).exec()
+        except:
+            pass
+        
+        
+        
+        
+class UpToDateBox(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = UpdateDialog()        
+        self.ui.setupUi(self)
+        
+    def closeEvent(self, evnt): # For person who clicks the X instead of ok...
+    
+        self.ui.PressedOk()
+        
