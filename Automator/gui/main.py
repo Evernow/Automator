@@ -1,7 +1,6 @@
 Current_version = '1.1.0'
 
 from PyQt6.QtCore import Qt
-from PyQt6 import QtCore
 from logging import getLogger
 
 from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QDialog
@@ -9,9 +8,6 @@ from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButt
 from Automator.gui.rescuecommands import RescueCommandsWindow
 from Automator.gui.sysinfo import SysInfoWindow
 from Automator.gui.UpdateDialog import UpdateDialog
-
-import os
-import sys
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
