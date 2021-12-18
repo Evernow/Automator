@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButt
 from Automator import __name__, __version__
 from Automator.gui.rescuecommands import RescueCommandsWindow
 from Automator.gui.sysinfo import SysInfoWindow
+from Automator.misc.update_check import run_update_check
 
 
 class MainWindow(QMainWindow):
@@ -44,6 +45,8 @@ class MainWindow(QMainWindow):
             layout.addWidget(button)
             layout.setAlignment(button, Qt.AlignmentFlag.AlignHCenter)
         layout.addStretch()
+
+        run_update_check(self)
 
         main_widget.setLayout(layout)
         self.setWindowTitle('24HS-Automator')
