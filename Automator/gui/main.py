@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
             button.setObjectName(button_id)
             button.setFixedWidth(300)
             if callback:
+                # noinspection PyUnresolvedReferences
                 button.clicked.connect(callback)
             else:
                 button.setEnabled(False)
