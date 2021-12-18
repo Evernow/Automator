@@ -4,7 +4,7 @@ import sys
 
 Started = 0 # To avoid duplicate exits
 class UpdateDialog():
-    def setupUi(self, Dialog):
+    def setupUi(self, Dialog: QtWidgets.QDialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(500, 100)
         self.label = QtWidgets.QLabel(Dialog)
