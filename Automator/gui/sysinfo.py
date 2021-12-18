@@ -291,7 +291,7 @@ class SysInfoWindow(QDialog):
             f.write('InstallMethod\t{}\t\n'.format(get_button_id(self.install_method, no_info_text)))
             f.write('ModifiedWindows\t{}\t\n'.format(get_button_text(self.tweak_buttons, no_info_text)))
             f.write('UserSpecifiedSystemType\t{}\t\n'.format(get_button_text(self.platform_buttons)))
-            f.write('LaptopCertainty\t{}\t\n'.format(str(is_laptop())))
+            f.write('AutodetectedSystemType\t{}\t\n'.format('Laptop' if is_laptop() else 'Desktop'))
             f.write('PSUModel\t{}\t\n'.format(self.psu_model.text() if self.psu_model.text() else no_info_text))
             f.write('GPUConnectionMethod\t{}\t\n'.format(get_button_text(self.pcie_riser_buttons, no_info_text)))
             f.write('PSUCables\t{}\t\n'.format(self.psu_cables.text() if self.psu_cables.text() else no_info_text))
