@@ -3,6 +3,7 @@ from logging import getLogger
 
 from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton
 
+from Automator import __name__, __version__
 from Automator.gui.rescuecommands import RescueCommandsWindow
 from Automator.gui.sysinfo import SysInfoWindow
 
@@ -11,7 +12,7 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.logger = getLogger('Automator')
-        self.logger.info('Starting up...')
+        self.logger.info(f'Starting up {__name__} {__version__}')
 
         main_widget = QWidget()
         layout = QVBoxLayout()
