@@ -1,4 +1,4 @@
-Current_version = '1.1.0'
+current_version = '1.1.0'
 
 from PyQt6.QtCore import Qt
 from logging import getLogger
@@ -56,9 +56,9 @@ class MainWindow(QMainWindow):
         try:
             import requests
             response = requests.get("https://api.github.com/repos/24HourSupport/Automator/releases/latest", timeout=3)
-            Latest_version = response.json()["name"].replace('v', '').strip()
+            latest_version = response.json()["name"].replace('v', '').strip()
 
-            if (Current_version < Latest_version):
+            if (current_version < latest_version):
                 UpToDateBox(self).exec()
         except:
             pass

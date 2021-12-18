@@ -2,7 +2,7 @@ from PyQt6 import QtCore, QtWidgets
 import os
 import sys
 
-Started = 0 # To avoid duplicate exits
+started = 0 # To avoid duplicate exits
 class UpdateDialog():
     def setupUi(self, Dialog: QtWidgets.QDialog):
         Dialog.setObjectName("Dialog")
@@ -31,9 +31,9 @@ class UpdateDialog():
         
         
     def PressedOk(self):
-        global Started
-        if (Started == 0):
-            Started = 1
+        global started
+        if (started == 0):
+            started = 1
             os.startfile('https://github.com/24HourSupport/Automator/releases/latest/download/24HS-Automator.exe')
             QtCore.QCoreApplication.quit()
             sys.exit()
