@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import QDialog, QHBoxLayout, QGroupBox, QGridLayout, QLabel
     QButtonGroup, QRadioButton, QVBoxLayout, QWidget, QLineEdit, QPushButton, QMessageBox
 
 from Automator.misc.platform_info import is_laptop
-
+from Automator.misc.connection_check import checkpiholes
 
 class WrappingLabel(QLabel):
     clicked = pyqtSignal()
@@ -305,6 +305,10 @@ class SysInfoWindow(QDialog):
                 f.write('{}\t{}\t{}\t{}\t{}\t\n'.format(
                     ram_stick.Name, ram_stick.Speed, ram_stick.DeviceLocator, ram_stick.PartNumber, ram_stick.Manufacturer
                 ))
+            f.write('\n')
+            f.write('[Automator_PiHole/Host block check]\n')
+            f.write('\n')
+            f.write(checkpiholes())
 
         # Copy file to clipboard
         clipboard = QGuiApplication.clipboard()
